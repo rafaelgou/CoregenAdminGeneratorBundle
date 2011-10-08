@@ -1,0 +1,39 @@
+generator:
+    # Class to generate
+    class: Coregen/AdminGenerator/Generator/Generator
+
+    param:
+        # Entity or Document
+        model:           Funcionario
+        theme:                 admin
+#        non_verbose_templates: true
+#        with_show:             false
+#        singular:              ~
+#        plural:                ~
+#        route_prefix:          funcionario
+#        with_doctrine_route:   true
+#        actions_base_class:    sfActions
+
+        config:
+            actions: ~
+            fields:  ~
+            list:
+                title: "Listing %%records%%"
+                method: find
+                count_method: count
+                layout: stacked # grid or stacked, default grid
+#                sort:
+                max_per_page: ~
+                object_actions: ~
+                batch_actions: ~
+#            filter:
+#                display: ~
+#                type: ~
+            form:
+                type: ~
+            edit:
+                title: ~
+#                actions: ~
+            new:
+                title: ~
+#                actions: ~
