@@ -1,0 +1,72 @@
+<?php
+namespace Coregen\AdminGeneratorBundle\Data;
+
+/**
+ * List Data
+ *
+ * @package coregen
+ * @subpackage data
+ */
+class ListData extends AbstractData
+{
+    protected function getMetadata()
+    {
+        return array(
+            'title' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'method' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'count_method' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'display' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'array',
+                ),
+            'layout' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'sort' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'max_per_page' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'object_actions' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'array',
+                ),
+            'batch_actions' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'array',
+                ),
+            );
+    }
+
+}

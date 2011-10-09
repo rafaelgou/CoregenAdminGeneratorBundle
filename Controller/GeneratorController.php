@@ -16,6 +16,10 @@ class GeneratorController extends Controller
 
     protected $objectClass = null;
 
+    protected $generatorConfig = null;
+
+    protected $generator = null;
+
     abstract public function indexAction();
 
     abstract public function showAction($id);

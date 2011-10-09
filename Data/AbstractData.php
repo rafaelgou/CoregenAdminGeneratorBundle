@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of PHPBol.
+ * This fiole is part of PHPBol.
  *
  * (c) 2011 Francisco Luz & Rafael Goulart
  *
@@ -14,10 +14,8 @@ use \ArrayIterator;
 /**
  * Basic Data Storage
  *
- * @package phpbol
+ * @package coregen
  * @subpackage data
- * @author Francisco Luz <drupalist@naosei.com>
- * @author Rafael Goulart <rafaelgou@gmail.com>
  */
 abstract class AbstractData extends ArrayIterator
 {
@@ -170,7 +168,7 @@ abstract class AbstractData extends ArrayIterator
                     }
                     break;
 
-                case 'array/object':
+                case 'object':
 
                     $class = $this->classes[$fieldName];
                     if (is_array($value)) {
@@ -191,6 +189,16 @@ abstract class AbstractData extends ArrayIterator
 
                     if (!$this->offsetGet($fieldName)->isValid()) {
                         $this->warnings[$fieldName] = $this->offsetGet($fieldName)->getWarnings();
+                    }
+                    break;
+
+                case 'array':
+
+                    if (is_array($value)) {
+                        $this->offsetSet($fieldName, $value);
+                    } else {
+                        $this->warnings[$fieldName] = 'Campo com tipo inválido: ' . gettype($value);
+                        $this->valid = false;
                     }
 
                     break;

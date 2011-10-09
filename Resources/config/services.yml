@@ -2,6 +2,6 @@ parameters:
 #    coregen_admin_generator.example.class: Coregen\AdminGeneratorBundle\Example
 
 services:
-#    coregen_admin_generator.example:
-#        class: %coregen_admin_generator.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+#    coregen.admin_generator:
+#        class: Coregen\AdminGeneratorBundle\Generator\Generator
+#        arguments: ["Symfony\Component\DependencyInjection\Loader\YamlFileLoader"]
