@@ -46,13 +46,13 @@ class ListData extends AbstractData
                 'required' => true,
                 'null'     => true,
                 'length'   => null,
-                'type'     => 'string',
+                'type'     => 'array',
                 ),
             'max_per_page' => array(
                 'required' => true,
                 'null'     => true,
                 'length'   => null,
-                'type'     => 'string',
+                'type'     => 'int',
                 ),
             'object_actions' => array(
                 'required' => true,

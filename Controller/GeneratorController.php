@@ -55,7 +55,7 @@ abstract class GeneratorController extends Controller
                     'generator'      => $this->generator,
                     )
                 );
-        return parent::render($this->generator->theme . $view, $parameters);
+        return parent::render($this->generator->theme . $this->getView($view), $parameters);
     }
 
     /**
@@ -119,6 +119,7 @@ abstract class GeneratorController extends Controller
 
     protected function loadGenerator(Generator $generator)
     {
+        echo '<pre>';print_r($generator);echo '</pre>';
         $this->generator = $generator;
     }
 }

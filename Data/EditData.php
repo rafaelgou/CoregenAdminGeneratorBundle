@@ -7,7 +7,7 @@ namespace Coregen\AdminGeneratorBundle\Data;
  * @package coregen
  * @subpackage data
  */
-class ListData extends AbstractData
+class EditData extends AbstractData
 {
     protected function getMetadata()
     {

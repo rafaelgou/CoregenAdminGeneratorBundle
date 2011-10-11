@@ -82,9 +82,9 @@ class Pager
      */
     public function __construct(Registry $doctrineRegistry, $generator)
     {
-
-        $this->entityManager  = $entityManager;
-        $this->generator = $generator;
+        $this->generator     = $generator;
+        $this->entityManager = $doctrineRegistry->getEntityManager();
+        $this->repository    = $doctrineRegistry->getRepository($this->generator->class);
     }
 
     /**

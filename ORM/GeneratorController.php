@@ -4,13 +4,9 @@ namespace Coregen\AdminGeneratorBundle\ORM;
 
 use Coregen\AdminGeneratorBundle\Controller;
 
-class GeneratorController extends Controller\GeneratorController
+abstract class GeneratorController extends Controller\GeneratorController
 {
-
-    public function configure()
-    {
-
-    }
+    //abstract public function configure();
 
     protected function getManager()
     {

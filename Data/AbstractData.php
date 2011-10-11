@@ -209,7 +209,7 @@ abstract class AbstractData extends ArrayIterator
                         $this->offsetSet($fieldName, (string) $value);
                         $this->warnings[$fieldName] = 'Valor ' . $value . ' não é string, armazenado ' . (string) $value;
                         $this->valid = false;
-                    } else if (strlen($value) > $metadata['length']) {
+                    } else if (null !== $metadata['length'] && strlen($value) > $metadata['length']) {
                         $this->offsetSet($fieldName, (string) $value);
                         $this->append(array($fieldName => substr($value, 0, $metadata['length']-1)));
                         $this->warnings[$fieldName] = 'Valor ' . $value . ' tem tamanho maior que o definido, armazenado ' . $this->offsetGet($fieldName);
@@ -261,12 +261,16 @@ abstract class AbstractData extends ArrayIterator
      */
     public function get($fieldName)
     {
-        $method = 'get' . ucfirst(fieldName);
+        $method = 'get' . ucfirst($fieldName);
         if (method_exists($this, $method))
         {
             return $this->$method($fieldName);
         } else {
-            return $this->offsetGet($fieldName);
+            if ($this->offsetExists($fieldName)) {
+                return $this->offsetGet($fieldName);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -280,7 +284,7 @@ abstract class AbstractData extends ArrayIterator
      */
     public function set($fieldName, $value)
     {
-        $method = 'set' . ucfirst(fieldName);
+        $method = 'set' . ucfirst($fieldName);
         if (method_exists($this, $method))
         {
             $this->$method($fieldName, $value);
@@ -299,7 +303,11 @@ abstract class AbstractData extends ArrayIterator
      */
     public function __get($name)
     {
-        return $this->offsetGet($name);
+        if ($this->offsetExists($name)) {
+            return $this->offsetGet($name);
+        } else {
+            return null;
+        }
     }
 
     /**
