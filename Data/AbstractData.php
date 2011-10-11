@@ -212,7 +212,7 @@ abstract class AbstractData extends ArrayIterator
                     } else if (strlen($value) > $metadata['length']) {
                         $this->offsetSet($fieldName, (string) $value);
                         $this->append(array($fieldName => substr($value, 0, $metadata['length']-1)));
-                        $this->warnings[$fieldName] = 'Valor ' . $value . ' tem tamanho maior que o definido, armazenado ' . $this->$fieldName;
+                        $this->warnings[$fieldName] = 'Valor ' . $value . ' tem tamanho maior que o definido, armazenado ' . $this->offsetGet($fieldName);
                     } else {
                         $this->offsetSet($fieldName, (string) $value);
                     }
@@ -272,6 +272,7 @@ abstract class AbstractData extends ArrayIterator
 
     /**
      * Generic Setter
+     *
      * @param string $name The attribute name
      * @param mixed $value The value
      *
@@ -286,6 +287,32 @@ abstract class AbstractData extends ArrayIterator
         } else {
             $this->validateAndStore($fieldName, $value);
         }
+        return $this;
+    }
+
+    /**
+     * Generic Magic Getter
+     *
+     * @param string $name The attribute name
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->offsetGet($name);
+    }
+
+    /**
+     * Generic Magic Setter
+     *
+     * @param string $name The attribute name
+     * @param mixed $value The value
+     *
+     * @return AbstractData
+     */
+    public function __set($name, $value)
+    {
+        $this->validateAndStore($name, $value);
         return $this;
     }
 

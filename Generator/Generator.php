@@ -2,19 +2,16 @@
 
 namespace Coregen\AdminGeneratorBundle\Generator;
 
-use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Coregen\AdminGeneratorBundle\Data\AbstractData;
+use Coregen\AdminGeneratorBundle\Data\FieldsData;
+use Coregen\AdminGeneratorBundle\Data\ListData;
+use Coregen\AdminGeneratorBundle\Data\FormData;
+use Coregen\AdminGeneratorBundle\Data\EditData;
+use Coregen\AdminGeneratorBundle\Data\NewData;
+use Coregen\AdminGeneratorBundle\Data\FilterData;
 
 class Generator extends AbstractData
 {
-
-//    /**
-//     * Config Loader
-//     * @var Symfony\Component\Config\Loader\LoaderInterface
-//     */
-//    protected $loader = null;
 
     protected $config = null;
 
@@ -23,24 +20,28 @@ class Generator extends AbstractData
      * @var array
      */
     protected $classes = array(
-        'fields' => '\Coregen\AdminGeneratorBundle\\Data\FieldsData',
-        'list'   => '\Coregen\AdminGeneratorBundle\\Data\ListData',
-        'form'   => '\Coregen\AdminGeneratorBundle\\Data\FormData',
-        'edit'   => '\Coregen\AdminGeneratorBundle\\Data\EditData',
-        'new'    => '\Coregen\AdminGeneratorBundle\\Data\NewData',
-        'filter' => '\Coregen\AdminGeneratorBundle\\Data\FilterData',
+        'fields' => '\Coregen\AdminGeneratorBundle\Data\FieldsData',
+        'list'   => '\Coregen\AdminGeneratorBundle\Data\ListData',
+        'form'   => '\Coregen\AdminGeneratorBundle\Data\FormData',
+        'edit'   => '\Coregen\AdminGeneratorBundle\Data\EditData',
+        'new'    => '\Coregen\AdminGeneratorBundle\Data\NewData',
+        'filter' => '\Coregen\AdminGeneratorBundle\Data\FilterData',
     );
 
-    public function __constructor(LoaderInterface $loader)
+    public function __constructor()
     {
-        '@CoregenAdminGeneratorBundle/Resources/config/generator.yml';
-        $loader = new YamlFileLoader;
     }
 
     protected function getMetadata()
     {
         return array(
-            'class' => array(
+            'theme' => array(
+                'required' => true,
+                'null'     => false,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'route' => array(
                 'required' => true,
                 'null'     => false,
                 'length'   => null,

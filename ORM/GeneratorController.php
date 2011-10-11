@@ -1,23 +1,35 @@
 <?php
 
-namespace Coregen\AdminGeneratorBundle\ORM\Controller;
+namespace Coregen\AdminGeneratorBundle\ORM;
 
 use Coregen\AdminGeneratorBundle\Controller;
 
 class GeneratorController extends Controller\GeneratorController
 {
 
-    /**
-     * Lists all Tarefa objects.
-     *
-     */
+    public function configure()
+    {
+
+    }
+
+    protected function getManager()
+    {
+    }
+
+    protected function getRepository()
+    {
+
+    }
+
     public function indexAction()
     {
+        $this->configure();
+
         $manager = $this->getDoctrine()->getEntityManager();
 
         $objects = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->findAll();
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:index.html.twig', array(
+        return $this->renderView('listGrid', array(
             'objects' => $objects
         ));
     }
@@ -170,7 +182,7 @@ class GeneratorController extends Controller\GeneratorController
         return $this->redirect($this->generateUrl('tarefa'));
     }
 
-    private function createDeleteForm($id)
+    protected function createDeleteForm($id)
     {
         return $this->createFormBuilder(array('id' => $id))
             ->add('id', 'hidden')

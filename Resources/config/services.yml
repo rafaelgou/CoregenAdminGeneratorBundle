@@ -1,7 +1,17 @@
 parameters:
-#    coregen_admin_generator.example.class: Coregen\AdminGeneratorBundle\Example
+    coregen_generator.class: Coregen\AdminGeneratorBundle\Generator\Generator
+    coregen_generator_odm_pager.class: Coregen\AdminGeneratorBundle\ODM\Pager
+    coregen_generator_orm_pager.class: Coregen\AdminGeneratorBundle\ORM\Pager
 
 services:
-#    coregen.admin_generator:
-#        class: Coregen\AdminGeneratorBundle\Generator\Generator
-#        arguments: ["Symfony\Component\DependencyInjection\Loader\YamlFileLoader"]
+    coregen.generator:
+        class:     %coregen_generator.class%
+
+    coregen.orm.pager:
+        class:     %coregen_generator_orm_pager.class%
+        arguments: [@doctrine, @coregen.generator]
+
+    coregen.odm.pager:
+        class:     %coregen_generator_odm_pager.class%
+        arguments: [@doctrine, @coregen.generator]
+
