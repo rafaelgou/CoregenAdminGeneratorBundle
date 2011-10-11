@@ -11,24 +11,19 @@ use Symfony\Bundle\DoctrineBundle\Registry;
 class Pager
 {
     /**
-     * @var Doctrine\ORM\entityManager
+     * @var Symfony\Bundle\DoctrineBundle\Registry
      */
-    protected $entityManager;
-
-    /*
-     * @var Doctrine\ORM\QueryBuilder
-     */
-    protected $queryBuilder;
-
-    /*
-     * @var Doctrine\ORM\EntityRepository
-     */
-    protected $repository;
+    protected $doctrineRegistry = null;
 
     /**
      * @var Coregen\AdminGeneratorBundle\Generator\Generator
      */
-    protected $generator;
+    protected $generator = null;
+
+    /**
+     * @var Doctrine\ORM\QueryBuilder
+     */
+    protected $queryBuilder = null;
 
     /**
      * @var int
@@ -77,14 +72,52 @@ class Pager
 
     /**
      * Constructor
-     * @param Symfony\Bundle\DoctrineBundle\Registry           $doctrineRegistry The Doctrine Registry
+     * @param Symfony\Bundle\DoctrineBundle\Registry           $doctrineRegistry The Doct-rine Registry
      * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator        The Coregen Generator
      */
-    public function __construct(Registry $doctrineRegistry, $generator)
+    public function __construct(Registry $doctrineRegistry, Generator $generator=null)
     {
-        $this->generator     = $generator;
-        $this->entityManager = $doctrineRegistry->getEntityManager();
-        $this->repository    = $doctrineRegistry->getRepository($this->generator->class);
+        $this->doctrineRegistry = $doctrineRegistry;
+
+        if (null !== $generator) {
+            $this->generator  = $generator;
+        }
+
+    }
+
+    /**
+     * Defines the generator
+     *
+     * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator The Coregen Generator
+     */
+    public function setGenerator(Generator $generator)
+    {
+        $this->generator  = $generator;
+        return $this;
+    }
+
+    /**
+     * Returns de Repository
+     *
+     * @return Doctrine\ORM\EntityRepository
+     */
+    public function getRepository()
+    {
+        if (null === $this->generator) {
+            throw new \Exception('Can\'t instatiate a Doctrine Repository without Generator Class');
+        } else {
+            return $this->doctrineRegistry->getRepository($this->generator->class);
+        }
+    }
+
+    /**
+     * Returns de EntityManager
+     *
+     * @return Doctrine\ORM\EntityManager
+     */
+    public function getManager()
+    {
+        return $this->doctrineRegistry->getEntityManager();
     }
 
     /**
@@ -191,7 +224,14 @@ class Pager
      */
     public function getCount()
     {
-        if (null === $this->count) $this->count = $this->getQueryBuilder()->getQuery()->count();
+        if (null === $this->count) {
+            $result = $this->getRepository()
+                ->createQueryBuilder('e')
+                ->addSelect('count(e.id) as total_count')
+                ->getQuery()
+                ->execute();
+            $this->count = $result[0]['total_count'];
+        }
         return $this->count;
     }
 

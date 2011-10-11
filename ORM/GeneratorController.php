@@ -8,26 +8,23 @@ abstract class GeneratorController extends Controller\GeneratorController
 {
     //abstract public function configure();
 
-    protected function getManager()
-    {
-    }
-
-    protected function getRepository()
-    {
-
-    }
-
     public function indexAction()
     {
+        // Configuring the Generator Controller
         $this->configure();
 
-        $manager = $this->getDoctrine()->getEntityManager();
+        // Defining actual page
+        $this->setPage($this->getRequest()->get('page', $this->getPage()));
 
-        $objects = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->findAll();
+        $pager = $this->getPager();
+        //$manager = $this->getDoctrine()->getEntityManager();
+
+        //$objects = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->findAll();
 
         return $this->renderView('listGrid', array(
-            'objects' => $objects
+            'pager'   => $pager,
         ));
+
     }
 
     /**

@@ -7,6 +7,9 @@ use Coregen\AdminGeneratorBundle\Generator\Generator;
 
 abstract class GeneratorController extends Controller
 {
+    /**
+     * @var array
+     */
     protected $views= array(
         'listGrid'    => ':Coregen:listGrid.html.twig',
         'listStacked' => ':Coregen::listStacked.html.twig',
@@ -15,7 +18,15 @@ abstract class GeneratorController extends Controller
         'form'        => ':Coregen::form.html.twig',
     );
 
+    /**
+     * @var Coregen\AdminGeneratorBundle\Generator\Generator
+     */
     protected $generator = null;
+
+    /**
+     * @var Pager
+     */
+    protected $pager = null;
 
     abstract protected function configure();
 
@@ -35,10 +46,23 @@ abstract class GeneratorController extends Controller
 
     abstract protected function createDeleteForm($id);
 
-    abstract protected function getManager();
+    /**
+     * Returns the Doctrine ORM/EntityManager or ODM/DocumentManager
+     * @return Manager
+     */
+    protected function getManager()
+    {
+        return $this->pager->getManager();
+    }
 
-    abstract protected function getRepository();
-
+    /**
+     * Returns the Doctrine ORM/ODM Repository
+     * @return Manager
+     */
+    protected function getRepository()
+    {
+        return $this->pager->getRepository();
+    }
 
     /**
      * Renders a view
@@ -79,11 +103,10 @@ abstract class GeneratorController extends Controller
      */
     protected function getPager($query=array(), $page=false, $max_per_page=false, $sort=false)
     {
-        $pager = new DynamicPager($this->getDocumentManager(), $this->definitionName);
-        $pager->setCurrent($page ? $page : $this->getPage());
-        $pager->setLimit($max_per_page ? $max_per_page : $this->getDefinitionModel()->getList()->getMaxPerPage());
-        $pager->setQuery($query);
-
+        $this->pager->setCurrent($page ? $page : $this->getPage());
+        $this->pager->setLimit($max_per_page ? $max_per_page : $this->generator->list->max_per_page);
+        $this->pager->setQuery($query);
+/*
         if ($sort)
         {
             if (!is_array($sort)) $sort[$sort] = 'asc';
@@ -95,8 +118,8 @@ abstract class GeneratorController extends Controller
             }
         }
         $pager->setSort($sort);
-
-        return $pager;
+*/
+        return $this->pager;
     }
 
     /**
@@ -119,7 +142,9 @@ abstract class GeneratorController extends Controller
 
     protected function loadGenerator(Generator $generator)
     {
-        echo '<pre>';print_r($generator);echo '</pre>';
         $this->generator = $generator;
+        $this->pager = $this->get('coregen.orm.pager')
+                ->setGenerator($generator);
+
     }
 }
