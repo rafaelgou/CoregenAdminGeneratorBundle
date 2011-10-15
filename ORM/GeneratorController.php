@@ -220,17 +220,17 @@ abstract class GeneratorController extends Controller\GeneratorController
             $this->get('session')->setFlash('success', 'The item was deleted successfully');
             return $this->redirect($this->generateUrl($this->generator->route));
         } else {
-            $errors = array();
-            foreach($form->getErrors() as $error) {
-                $errors[] = $error->getMessageTemplate();
-            }
+            //$errors = array();
+            //foreach($form->getErrors() as $error) {
+            //    $errors[] = $error->getMessageTemplate();
+            //}
 
-            echo '<pre>'; print_r($_REQUEST);echo implode('<br/>', $errors); print_r($form->getData());exit;
+            //echo '<pre>'; print_r($_REQUEST);echo implode('<br/>', $errors); print_r($form->getData());exit;
 
             $this->get('session')->setFlash(
                     'error',
                     'An error ocurred while deleting the item.'
-            .'<br/>' . implode('<br/>', $errors)
+                    //.'<br/>' . implode('<br/>', $errors)
                     );
             return $this->redirect($this->generateUrl($this->generator->route));
         }
