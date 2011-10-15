@@ -73,7 +73,7 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         return $this->renderView('new', array(
             'record' => $entity,
-            'new_form'   => $form->createView()
+            'form'   => $form->createView()
         ));
     }
 
@@ -106,7 +106,7 @@ abstract class GeneratorController extends Controller\GeneratorController
         $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
         return $this->renderView('new', array(
             'record' => $entity,
-            'new_form'   => $form->createView()
+            'form'   => $form->createView()
         ));
     }
 
@@ -138,7 +138,7 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         return $this->renderView('edit', array(
             'record'      => $entity,
-            'edit_form'   => $editForm->createView(),
+            'form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ));
     }
@@ -184,7 +184,7 @@ abstract class GeneratorController extends Controller\GeneratorController
             $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Check the informed data.');
             return $this->renderView('edit', array(
                 'record'      => $entity,
-                'edit_form'   => $editForm->createView(),
+                'form'   => $editForm->createView(),
                 'delete_form' => $deleteForm->createView(),
             ));
 

@@ -22,7 +22,6 @@ abstract class Generator extends AbstractData
      * @var array
      */
     protected $classes = array(
-        'fields' => '\Coregen\AdminGeneratorBundle\Data\FieldsData',
         'list'   => '\Coregen\AdminGeneratorBundle\Data\ListData',
         'form'   => '\Coregen\AdminGeneratorBundle\Data\FormData',
         'edit'   => '\Coregen\AdminGeneratorBundle\Data\EditData',
@@ -189,6 +188,15 @@ abstract class Generator extends AbstractData
             $newFields[$name] = $field;
             if (!isset($field['label'])) {
                 $newFields[$name]['label'] = ucfirst($field);
+            }
+            if (!isset($field['size'])) {
+                $newFields[$name]['size'] = 'medium';
+            }
+            if (!isset($field['class'])) {
+                $newFields[$name]['class'] = '';
+            }
+            if (!isset($field['help'])) {
+                $newFields[$name]['help'] = false;
             }
         }
 
