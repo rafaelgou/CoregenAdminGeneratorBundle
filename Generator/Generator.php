@@ -8,6 +8,7 @@ use Coregen\AdminGeneratorBundle\Data\ListData;
 use Coregen\AdminGeneratorBundle\Data\FormData;
 use Coregen\AdminGeneratorBundle\Data\EditData;
 use Coregen\AdminGeneratorBundle\Data\NewData;
+use Coregen\AdminGeneratorBundle\Data\ShowData;
 use Coregen\AdminGeneratorBundle\Data\FilterData;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -26,6 +27,7 @@ abstract class Generator extends AbstractData
         'form'   => '\Coregen\AdminGeneratorBundle\Data\FormData',
         'edit'   => '\Coregen\AdminGeneratorBundle\Data\EditData',
         'new'    => '\Coregen\AdminGeneratorBundle\Data\NewData',
+        'show'   => '\Coregen\AdminGeneratorBundle\Data\ShowData',
         'filter' => '\Coregen\AdminGeneratorBundle\Data\FilterData',
     );
 
@@ -40,6 +42,12 @@ abstract class Generator extends AbstractData
     {
         return array(
             'class' => array(
+                'required' => true,
+                'null'     => false,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'model' => array(
                 'required' => true,
                 'null'     => false,
                 'length'   => null,
@@ -87,6 +95,12 @@ abstract class Generator extends AbstractData
                 'length'   => null,
                 'type'     => 'object',
                 ),
+            'show' => array(
+                'required' => true,
+                'null'     => false,
+                'length'   => null,
+                'type'     => 'object',
+                ),
             'filter' => array(
                 'required' => true,
                 'null'     => false,
@@ -105,6 +119,17 @@ abstract class Generator extends AbstractData
     public function setClass($class)
     {
         $this->validateAndStore('class', $class);
+        return $this;
+    }
+
+    /**
+     * Define Model Name
+     *
+     * @param mixed $model The Model Name
+     */
+    public function setModel($model)
+    {
+        $this->validateAndStore('model', $model);
         return $this;
     }
 
@@ -205,6 +230,17 @@ abstract class Generator extends AbstractData
     }
 
     /**
+     * Define Show
+     *
+     * @param mixed $show The Show
+     */
+    public function setShow($show)
+    {
+        $this->validateAndStore('show', $show);
+        return $this;
+    }
+
+    /**
      * Define Filter
      *
      * @param mixed $filter The Filter
@@ -216,23 +252,73 @@ abstract class Generator extends AbstractData
     }
 
     /**
+     * Return just the fields to be displayed in some part of the CRUD
+     *
+     * @return array
+     */
+    public function getDisplayFields($crudId)
+    {
+        $fields = array();
+        if (!isset($this->get($crudId)->display) && !is_array($this->get($crudId)->display)) {
+            return $this->fields;
+        }
+
+        foreach($this->get($crudId)->display as $displayField ) {
+            $fields[$displayField] = $this->fields[$displayField];
+        }
+
+        if (count($fields)) {
+            return $fields;
+        } else {
+            return $this->fields;
+        }
+
+    }
+
+    /**
      * Return just the fields to be displayed in List
      *
      * @return array
      */
     public function getListDisplayFields()
     {
-        $fields = array();
-        foreach($this->list->display as $displayField ) {
-            $fields[$displayField] = $this->fields[$displayField];
-        }
-        return $fields;
+        return $this->getDisplayFields('list');
+    }
+
+    /**
+     * Return just the fields to be displayed in Show
+     *
+     * @return array
+     */
+    public function getShowDisplayFields()
+    {
+        return $this->getDisplayFields('show');
+    }
+
+    /**
+     * Return just the fields to be displayed in Edit
+     *
+     * @return array
+     */
+    public function getEditDisplayFields()
+    {
+        return $this->getDisplayFields('edit');
+    }
+
+    /**
+     * Return just the fields to be displayed in New
+     *
+     * @return array
+     */
+    public function getNewDisplayFields()
+    {
+        return $this->getDisplayFields('new');
     }
 
     /**
      * Returns the Data Value
      *
-     * @param string $field
+     * @param string $field The field to render
      *
      * @return string
      */

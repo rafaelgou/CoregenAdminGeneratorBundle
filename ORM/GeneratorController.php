@@ -17,9 +17,6 @@ abstract class GeneratorController extends Controller\GeneratorController
         $this->setPage($this->getRequest()->get('page', $this->getPage()));
 
         $pager = $this->getPager();
-        //$manager = $this->getDoctrine()->getEntityManager();
-
-        //$objects = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->findAll();
 
         return $this->renderView('list' . ucfirst($this->generator->list->layout), array(
             'pager'   => $pager,
@@ -33,18 +30,21 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function showAction($id)
     {
+        // Configuring the Generator Controller
+        $this->configure();
+
         $manager = $this->getDoctrine()->getEntityManager();
 
-        $entity = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->find($id);
+        $entity = $manager->getRepository($this->generator->model)->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Tarefa entity.');
+            throw $this->createNotFoundException('Unable to find Entity.');
         }
 
         $deleteForm = $this->createDeleteForm($id);
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:show.html.twig', array(
-            'entity'      => $entity,
+        return $this->renderView('show', array(
+            'record'      => $entity,
             'delete_form' => $deleteForm->createView(),
         ));
     }
@@ -55,12 +55,18 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function newAction()
     {
-        $entity = new Tarefa();
-        $form   = $this->createForm(new TarefaType(), $entity);
+        // Configuring the Generator Controller
+        $this->configure();
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:new.html.twig', array(
-            'entity' => $entity,
-            'form'   => $form->createView()
+        $entityClass = $this->generator->class;
+        $formType = $this->generator->form->type;
+
+        $entity = new $entityClass();
+        $form   = $this->createForm(new $formType(), $entity);
+
+        return $this->renderView('new', array(
+            'record' => $entity,
+            'new_form'   => $form->createView()
         ));
     }
 
@@ -70,23 +76,30 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function createAction()
     {
-        $entity  = new Tarefa();
-        $request = $this->getRequest();
-        $form    = $this->createForm(new TarefaType(), $entity);
-        $form->bindRequest($request);
+        // Configuring the Generator Controller
+        $this->configure();
+
+        $entityClass = $this->generator->class;
+        $formType = $this->generator->form->type;
+
+        $entity = new $entityClass();
+        $form   = $this->createForm(new $formType(), $entity);
+
+        $form->bindRequest($this->getRequest());
 
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getEntityManager();
             $manager->persist($entity);
             $manager->flush();
 
-            return $this->redirect($this->generateUrl('tarefa_show', array('id' => $entity->getId())));
-
+            $this->get('session')->setFlash('success', 'The item was created successfully');
+            return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
         }
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:new.html.twig', array(
-            'entity' => $entity,
-            'form'   => $form->createView()
+        $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
+        return $this->renderView('new', array(
+            'record' => $entity,
+            'new_form'   => $form->createView()
         ));
     }
 
@@ -96,19 +109,24 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function editAction($id)
     {
+        // Configuring the Generator Controller
+        $this->configure();
+
         $manager = $this->getDoctrine()->getEntityManager();
 
-        $entity = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->find($id);
+        $entity = $manager->getRepository($this->generator->model)->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Tarefa entity.');
+            throw $this->createNotFoundException('Unable to find Entity.');
         }
 
-        $editForm = $this->createForm(new TarefaType(), $entity);
+        $formType = $this->generator->form->type;
+
+        $editForm = $this->createForm(new $formType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:edit.html.twig', array(
-            'entity'      => $entity,
+        return $this->renderView('edit', array(
+            'record'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ));
@@ -120,15 +138,20 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function updateAction($id)
     {
+        // Configuring the Generator Controller
+        $this->configure();
+
         $manager = $this->getDoctrine()->getEntityManager();
 
-        $entity = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->find($id);
+        $entity = $manager->getRepository($this->generator->model)->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Tarefa entity.');
+            throw $this->createNotFoundException('Unable to find entity.');
         }
 
-        $editForm   = $this->createForm(new TarefaType(), $entity);
+        $formType = $this->generator->form->type;
+
+        $editForm = $this->createForm(new $formType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
         $request = $this->getRequest();
@@ -139,11 +162,13 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->persist($entity);
             $manager->flush();
 
-            return $this->redirect($this->generateUrl('tarefa_edit', array('id' => $id)));
+            $this->get('session')->setFlash('success', 'The item was updated successfully');
+            return $this->redirect($this->generateUrl($this->generator->route . '_edit', array('id' => $id)));
         }
 
-        return $this->render('RgouGettyDoneBundle:Tarefa:edit.html.twig', array(
-            'entity'      => $entity,
+        $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
+        return $this->renderView('edit', array(
+            'record'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ));
@@ -155,6 +180,9 @@ abstract class GeneratorController extends Controller\GeneratorController
      */
     public function deleteAction($id)
     {
+        // Configuring the Generator Controller
+        $this->configure();
+
         $form = $this->createDeleteForm($id);
         $request = $this->getRequest();
 
@@ -162,10 +190,10 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getEntityManager();
-            $entity = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->find($id);
+            $entity = $manager->getRepository($this->generate->class)->find($id);
 
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Tarefa entity.');
+                throw $this->createNotFoundException('Unable to find entity.');
             }
 
             $manager->remove($entity);

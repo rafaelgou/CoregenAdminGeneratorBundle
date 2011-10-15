@@ -16,6 +16,7 @@ abstract class GeneratorController extends Controller
         'edit'        => ':Coregen:edit.html.twig',
         'new'         => ':Coregen:new.html.twig',
         'form'        => ':Coregen:form.html.twig',
+        'show'        => ':Coregen:show.html.twig',
     );
 
     /**

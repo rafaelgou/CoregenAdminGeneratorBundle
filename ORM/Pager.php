@@ -114,7 +114,7 @@ class Pager
         if (null === $this->generator) {
             throw new \Exception('Can\'t instatiate a Doctrine Repository without Generator Class');
         } else {
-            return $this->doctrineRegistry->getRepository($this->generator->class);
+            return $this->doctrineRegistry->getRepository($this->generator->model);
         }
     }
 
@@ -181,7 +181,7 @@ class Pager
 
 
         $this->queryBuilder = $this->entityManager
-                                ->createQueryBuilder($this->generator->class)
+                                ->createQueryBuilder($this->generator->model)
                                 ->setQueryArray($this->query)
                                 ->limit($this->limit)
                                 ->skip($skip);
