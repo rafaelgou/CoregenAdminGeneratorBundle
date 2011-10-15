@@ -28,22 +28,27 @@ class Pager
     /**
      * @var int
      */
-    protected $currentPage = false;
+    protected $currentPage = null;
 
     /**
      * @var int
      */
-    protected $nextPage = false;
+    protected $nextPage = null;
 
     /**
      * @var int
      */
-    protected $previousPage = false;
+    protected $previousPage = null;
 
     /**
      * @var int
      */
-    protected $lastPage = false;
+    protected $lastPage = null;
+
+    /**
+     * @var int
+     */
+    protected $maxPagesToList = 5;
 
     /**
      * @var boolean
@@ -72,8 +77,11 @@ class Pager
 
     /**
      * Constructor
-     * @param Symfony\Bundle\DoctrineBundle\Registry           $doctrineRegistry The Doct-rine Registry
+     *
+     * @param Symfony\Bundle\DoctrineBundle\Registry           $doctrineRegistry The Doctrine Registry
      * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator        The Coregen Generator
+     *
+     * @return void
      */
     public function __construct(Registry $doctrineRegistry, Generator $generator=null)
     {
@@ -122,6 +130,7 @@ class Pager
 
     /**
      * Executes the query
+     *
      * @return mixed
      */
     public function execute()
@@ -139,11 +148,20 @@ class Pager
                             ? false
                             : $this->currentPage - 1;
 
-        return $this->getQueryBuilder()->getQuery()->execute();
+        return $this->getRepository()
+                ->findBy(
+                        array(), //$criteria,
+                        array(), //$orderBy,
+                        $this->limit,
+                        ($this->currentPage -1 )* $this->limit
+                        );
+
+                //getQueryBuilder()->getQuery()->execute();
     }
 
     /**
      * Executes the query ( alias to execute() )
+     *
      * @return mixed
      */
     public function getResults()
@@ -154,6 +172,7 @@ class Pager
 
     /**
      * Returns the Query Builder
+     *
      * @return Doctrine\ODM\MongoDB\Query\Builder
      */
     public function getQueryBuilder()
@@ -162,10 +181,10 @@ class Pager
 
 
         $this->queryBuilder = $this->entityManager
-                                ->createQueryBuilder($this->generator)
-                                    ->setQueryArray($this->query)
-                                    ->limit($this->limit)
-                                    ->skip($skip);
+                                ->createQueryBuilder($this->generator->class)
+                                ->setQueryArray($this->query)
+                                ->limit($this->limit)
+                                ->skip($skip);
 
         foreach ($this->sort as $field => $order)
         {
@@ -176,7 +195,9 @@ class Pager
 
     /**
      * Sets the query limit
-     * @param integer $limit
+     *
+     * @param integer $limit The Limit
+     *
      * @return DynamicPager
      */
     public function setLimit($limit)
@@ -187,12 +208,28 @@ class Pager
 
     /**
      * Sets the query page
+     *
      * @param int $page
+     *
      * @return DynamicPager
      */
     public function setCurrent($page)
     {
         $this->currentPage = (int) $page;
+        return $this;
+    }
+
+    /**
+     * Sets the max pages to list
+     * puts the current page in always in the middle
+     *
+     * @param integer $maxPagesToList The max pages to list
+     *
+     * @return DynamicPager
+     */
+    public function setMaxPagesToList($maxPagesToList)
+    {
+        $this->maxPagesToList = (int) $maxPagesToList;
         return $this;
     }
 
@@ -209,8 +246,10 @@ class Pager
 
     /**
      * Sets the query sort
+     *
      * @param array $sort
-     * @return DynamicPager
+     *
+     * @return  Pager
      */
     public function setSort($sort=array())
     {
@@ -220,6 +259,7 @@ class Pager
 
     /**
      * Returns the documents count
+     *
      * @return integer
      */
     public function getCount()
@@ -237,6 +277,7 @@ class Pager
 
     /**
      * Returns the documents count
+     *
      * @return integer
      */
     public function count()
@@ -246,6 +287,7 @@ class Pager
 
     /**
      * Returns actual page
+     *
      * @return integer
      */
     public function getCurrentPage()
@@ -255,6 +297,7 @@ class Pager
 
     /**
      * Returns next page
+     *
      * @return integer
      */
     public function getNextPage()
@@ -264,6 +307,7 @@ class Pager
 
     /**
      * Returns previous page
+     *
      * @return integer
      */
     public function getPreviousPage()
@@ -273,6 +317,7 @@ class Pager
 
     /**
      * Returns last page
+     *
      * @return integer
      */
     public function getLastPage()
@@ -282,6 +327,7 @@ class Pager
 
     /**
      * Check if it is on the first page
+     *
      * @return boolean
      */
     public function isFirstPage()
@@ -291,6 +337,7 @@ class Pager
 
     /**
      * Check if it is on the last page
+     *
      * @return boolean
      */
     public function isLastPage()
@@ -300,11 +347,47 @@ class Pager
 
     /**
      * Check if has pages enough to paginate (more than limit)
+     *
      * @return boolean
      */
     public function haveToPaginate()
     {
         return ($this->count() > $this->limit) ? true : false;
+    }
+
+    /**
+     * Returns the page range to paginate
+     *
+     * @return array
+     */
+    public function rangeToPaginate()
+    {
+        $pages = array();
+
+        if ( $this->lastPage <= $this->maxPagesToList) {
+            for ($i = 1; $i <= $this->lastPage; $i++) {
+                $pages[] = $i;
+            }
+        } else if ($this->currentPage <= floor($this->maxPagesToList/2)+1) {
+            for ($i = 1; $i <= $this->maxPagesToList; $i++) {
+                $pages[] = $i;
+            }
+        } else if ($this->lastPage <= floor($this->maxPagesToList/2)+$this->currentPage) {
+            $begin = $this->lastPage - $this->maxPagesToList + 1;
+            for ($i = $begin; $i <= $this->lastPage; $i++) {
+                $pages[] = $i;
+            }
+        } else {
+            $begin = $this->currentPage - floor($this->maxPagesToList/2);
+            $end   = $this->currentPage + floor($this->maxPagesToList/2);
+            for ($i = $begin; $i <= $end; $i++) {
+                $pages[] = $i;
+            }
+        }
+        return $pages;
+
+
+
     }
 
 }

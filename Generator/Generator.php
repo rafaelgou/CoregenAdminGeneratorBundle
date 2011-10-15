@@ -9,6 +9,7 @@ use Coregen\AdminGeneratorBundle\Data\FormData;
 use Coregen\AdminGeneratorBundle\Data\EditData;
 use Coregen\AdminGeneratorBundle\Data\NewData;
 use Coregen\AdminGeneratorBundle\Data\FilterData;
+use Symfony\Component\DependencyInjection\Container;
 
 abstract class Generator extends AbstractData
 {
@@ -158,7 +159,15 @@ abstract class Generator extends AbstractData
      */
     public function setFields($fields)
     {
-        $this->validateAndStore('fields', $fields);
+        $newFields = array();
+        foreach($fields as $name => $field) {
+            $newFields[$name] = $field;
+            if (!isset($field['label'])) {
+                $newFields[$name]['label'] = ucfirst($field);
+            }
+        }
+
+        $this->validateAndStore('fields', $newFields);
         return $this;
     }
 
@@ -204,6 +213,32 @@ abstract class Generator extends AbstractData
     {
         $this->validateAndStore('filter', $filter);
         return $this;
+    }
+
+    /**
+     * Return just the fields to be displayed in List
+     *
+     * @return array
+     */
+    public function getListDisplayFields()
+    {
+        $fields = array();
+        foreach($this->list->display as $displayField ) {
+            $fields[$displayField] = $this->fields[$displayField];
+        }
+        return $fields;
+    }
+
+    /**
+     * Returns the Data Value
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    public function renderField($fieldName, $data)
+    {
+        return $data->{'get' . Container::camelize($fieldName)}();
     }
 
 }

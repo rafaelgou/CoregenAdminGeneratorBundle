@@ -42,6 +42,12 @@ class ListData extends AbstractData
                 'length'   => null,
                 'type'     => 'string',
                 ),
+            'stackedTemplate' => array(
+                'required' => false,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'string',
+                ),
             'sort' => array(
                 'required' => true,
                 'null'     => true,

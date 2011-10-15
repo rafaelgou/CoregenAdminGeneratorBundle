@@ -21,7 +21,7 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         //$objects = $manager->getRepository('RgouGettyDoneBundle:Tarefa')->findAll();
 
-        return $this->renderView('listGrid', array(
+        return $this->renderView('list' . ucfirst($this->generator->list->layout), array(
             'pager'   => $pager,
         ));
 

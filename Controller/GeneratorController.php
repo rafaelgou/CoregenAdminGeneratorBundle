@@ -12,10 +12,10 @@ abstract class GeneratorController extends Controller
      */
     protected $views= array(
         'listGrid'    => ':Coregen:listGrid.html.twig',
-        'listStacked' => ':Coregen::listStacked.html.twig',
-        'edit'        => ':Coregen::edit.html.twig',
-        'new'         => ':Coregen::new.html.twig',
-        'form'        => ':Coregen::form.html.twig',
+        'listStacked' => ':Coregen:listStacked.html.twig',
+        'edit'        => ':Coregen:edit.html.twig',
+        'new'         => ':Coregen:new.html.twig',
+        'form'        => ':Coregen:form.html.twig',
     );
 
     /**
