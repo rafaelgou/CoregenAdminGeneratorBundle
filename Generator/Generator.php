@@ -258,11 +258,11 @@ abstract class Generator extends AbstractData
      */
     public function getDisplayFields($crudId)
     {
-        $fields = array();
         if (!isset($this->get($crudId)->display) && !is_array($this->get($crudId)->display)) {
             return $this->fields;
         }
 
+        $fields = array();
         foreach($this->get($crudId)->display as $displayField ) {
             $fields[$displayField] = $this->fields[$displayField];
         }
@@ -326,5 +326,30 @@ abstract class Generator extends AbstractData
     {
         return $data->{'get' . Container::camelize($fieldName)}();
     }
+
+    /**
+     * Return just the fields to be hidden in some part of the CRUD
+     *
+     * @return array
+     */
+    public function getHiddenFields($crudId)
+    {
+
+        if (!isset($this->get($crudId)->display) && !is_array($this->get($crudId)->display)) {
+            return $this->fields;
+        }
+
+        $fieldNames = array();
+
+        foreach(array_keys($this->fields) as $fieldName ) {
+            if (!in_array($fieldName, $this->get($crudId)->display)) {
+                $fieldNames[] = $fieldName;
+            }
+        }
+
+
+        return $fieldNames;
+    }
+
 
 }

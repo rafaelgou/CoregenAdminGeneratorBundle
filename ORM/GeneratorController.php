@@ -3,6 +3,7 @@
 namespace Coregen\AdminGeneratorBundle\ORM;
 
 use Coregen\AdminGeneratorBundle\Controller;
+use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 
 abstract class GeneratorController extends Controller\GeneratorController
 {
@@ -18,8 +19,14 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         $pager = $this->getPager();
 
+//        $csrfProvider = new DefaultCsrfProvider($this->container->getParameter('kernel.secret'));
+
+        $deleteForm = $this->createDeleteForm('fake');
+
         return $this->renderView('list' . ucfirst($this->generator->list->layout), array(
-            'pager'   => $pager,
+            'pager'      => $pager,
+//            'csrf_token' => $csrfProvider->generateCsrfToken('delete_record'),
+            'delete_form' => $deleteForm->createView(),
         ));
 
     }
@@ -125,6 +132,10 @@ abstract class GeneratorController extends Controller\GeneratorController
         $editForm = $this->createForm(new $formType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
+        foreach ($this->generator->getHiddenFields('edit') as $fieldName) {
+            $editForm->remove($fieldName);
+        }
+
         return $this->renderView('edit', array(
             'record'      => $entity,
             'edit_form'   => $editForm->createView(),
@@ -149,11 +160,16 @@ abstract class GeneratorController extends Controller\GeneratorController
             throw $this->createNotFoundException('Unable to find entity.');
         }
 
+//        echo '<pre>'; print_r($entity); echo '</pre>';
+
         $formType = $this->generator->form->type;
 
         $editForm = $this->createForm(new $formType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
+        foreach ($this->generator->getHiddenFields('edit') as $fieldName) {
+            $editForm->remove($fieldName);
+        }
         $request = $this->getRequest();
 
         $editForm->bindRequest($request);
@@ -163,15 +179,17 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->flush();
 
             $this->get('session')->setFlash('success', 'The item was updated successfully');
-            return $this->redirect($this->generateUrl($this->generator->route . '_edit', array('id' => $id)));
+            return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $id)));
+        } else {
+            $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Check the informed data.');
+            return $this->renderView('edit', array(
+                'record'      => $entity,
+                'edit_form'   => $editForm->createView(),
+                'delete_form' => $deleteForm->createView(),
+            ));
+
         }
 
-        $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
-        return $this->renderView('edit', array(
-            'record'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        ));
     }
 
     /**
@@ -190,7 +208,7 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getEntityManager();
-            $entity = $manager->getRepository($this->generate->class)->find($id);
+            $entity = $manager->getRepository($this->generator->class)->find($id);
 
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find entity.');
@@ -198,9 +216,25 @@ abstract class GeneratorController extends Controller\GeneratorController
 
             $manager->remove($entity);
             $manager->flush();
+
+            $this->get('session')->setFlash('success', 'The item was deleted successfully');
+            return $this->redirect($this->generateUrl($this->generator->route));
+        } else {
+            $errors = array();
+            foreach($form->getErrors() as $error) {
+                $errors[] = $error->getMessageTemplate();
+            }
+
+            echo '<pre>'; print_r($_REQUEST);echo implode('<br/>', $errors); print_r($form->getData());exit;
+
+            $this->get('session')->setFlash(
+                    'error',
+                    'An error ocurred while deleting the item.'
+            .'<br/>' . implode('<br/>', $errors)
+                    );
+            return $this->redirect($this->generateUrl($this->generator->route));
         }
 
-        return $this->redirect($this->generateUrl('tarefa'));
     }
 
     protected function createDeleteForm($id)
