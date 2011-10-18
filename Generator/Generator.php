@@ -52,7 +52,13 @@ abstract class Generator extends AbstractData
                 'length'   => null,
                 'type'     => 'string',
                 ),
-            'theme' => array(
+            'layoutTheme' => array(
+                'required' => true,
+                'null'     => false,
+                'length'   => null,
+                'type'     => 'string',
+                ),
+            'coreTheme' => array(
                 'required' => true,
                 'null'     => false,
                 'length'   => null,
@@ -133,13 +139,24 @@ abstract class Generator extends AbstractData
     }
 
     /**
-     * Define Theme Name
+     * Define Layout Theme Name
      *
      * @param mixed $theme The Class Name
      */
-    public function setTheme($theme)
+    public function setLayoutTheme($theme)
     {
-        $this->validateAndStore('theme', $theme);
+        $this->validateAndStore('layoutTheme', $theme);
+        return $this;
+    }
+
+    /**
+     * Define Core Theme Name
+     *
+     * @param mixed $theme The Class Name
+     */
+    public function setCoreTheme($theme)
+    {
+        $this->validateAndStore('coreTheme', $theme);
         return $this;
     }
 

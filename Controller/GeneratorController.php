@@ -80,7 +80,7 @@ abstract class GeneratorController extends Controller
                     'generator'      => $this->generator,
                     )
                 );
-        return parent::render($this->generator->theme . $this->getView($view), $parameters);
+        return parent::render($this->generator->coreTheme . $this->getView($view), $parameters);
     }
 
     /**
