@@ -15,7 +15,7 @@ abstract class GeneratorController extends Controller\GeneratorController
         $this->configure();
 
         // Defining filters
-        $this->configureFilter();
+        //$this->configureFilter();
 
         // Defining actual page
         $this->setPage($this->getRequest()->get('page', $this->getPage()));
@@ -246,7 +246,7 @@ abstract class GeneratorController extends Controller\GeneratorController
         ;
     }
 
-    protected function setfilter()
+    protected function configurefilter()
     {
         // Configuring the Generator Controller
         $this->configure();
@@ -259,7 +259,7 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         $request = $this->getRequest();
         $form->bindRequest($request);
-        
+
 
         $this->getRequest()->getSession()->set($this->generator->route . '.filter', $filter);
     }
