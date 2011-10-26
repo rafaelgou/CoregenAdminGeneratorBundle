@@ -134,7 +134,10 @@ abstract class GeneratorController extends Controller
 
     /**
      * Sets current page on session
+     *
      * @param integer $page
+     *
+     * @return void
      */
     protected function setPage($page)
     {

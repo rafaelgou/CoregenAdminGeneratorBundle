@@ -14,6 +14,9 @@ abstract class GeneratorController extends Controller\GeneratorController
         // Configuring the Generator Controller
         $this->configure();
 
+        // Defining filters
+        $this->configureFilter();
+
         // Defining actual page
         $this->setPage($this->getRequest()->get('page', $this->getPage()));
 
@@ -92,15 +95,23 @@ abstract class GeneratorController extends Controller\GeneratorController
         $entity = new $entityClass();
         $form   = $this->createForm(new $formType(), $entity);
 
-        $form->bindRequest($this->getRequest());
+        $request = $this->getRequest();
+        $form->bindRequest($request);
 
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getEntityManager();
             $manager->persist($entity);
             $manager->flush();
 
-            $this->get('session')->setFlash('success', 'The item was created successfully');
-            return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
+
+            if ($request['form_save_and_add']) {
+                $this->get('session')->setFlash('success', 'The item was created successfully. Add a new one bellow.');
+                return $this->redirect($this->generateUrl($this->generator->route . '_new'));
+            } else {
+                $this->get('session')->setFlash('success', 'The item was created successfully');
+                return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
+            }
+
         }
 
         $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
@@ -160,8 +171,6 @@ abstract class GeneratorController extends Controller\GeneratorController
             throw $this->createNotFoundException('Unable to find entity.');
         }
 
-//        echo '<pre>'; print_r($entity); echo '</pre>';
-
         $formType = $this->generator->form->type;
 
         $editForm = $this->createForm(new $formType(), $entity);
@@ -220,17 +229,9 @@ abstract class GeneratorController extends Controller\GeneratorController
             $this->get('session')->setFlash('success', 'The item was deleted successfully');
             return $this->redirect($this->generateUrl($this->generator->route));
         } else {
-            //$errors = array();
-            //foreach($form->getErrors() as $error) {
-            //    $errors[] = $error->getMessageTemplate();
-            //}
-
-            //echo '<pre>'; print_r($_REQUEST);echo implode('<br/>', $errors); print_r($form->getData());exit;
-
             $this->get('session')->setFlash(
                     'error',
                     'An error ocurred while deleting the item.'
-                    //.'<br/>' . implode('<br/>', $errors)
                     );
             return $this->redirect($this->generateUrl($this->generator->route));
         }
@@ -244,5 +245,32 @@ abstract class GeneratorController extends Controller\GeneratorController
             ->getForm()
         ;
     }
+
+    protected function setfilter()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+
+
+        $this->getRequest('filtertype');
+
+        $entity = new $entityClass();
+        $form   = $this->createForm(new $formType(), $entity);
+
+        $request = $this->getRequest();
+        $form->bindRequest($request);
+        
+
+        $this->getRequest()->getSession()->set($this->generator->route . '.filter', $filter);
+    }
+
+    protected function getfilter()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+
+        return $this->getRequest()->getSession()->get($this->generator->route . '.filter', array());
+    }
+
 
 }
