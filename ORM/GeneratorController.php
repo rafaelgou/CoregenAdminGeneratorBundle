@@ -103,8 +103,7 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->persist($entity);
             $manager->flush();
 
-
-            if ($request['form_save_and_add']) {
+            if ($request->get('form_save_and_add') == 'true') {
                 $this->get('session')->setFlash('success', 'The item was created successfully. Add a new one bellow.');
                 return $this->redirect($this->generateUrl($this->generator->route . '_new'));
             } else {
