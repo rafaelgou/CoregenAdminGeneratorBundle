@@ -15,7 +15,7 @@ abstract class GeneratorController extends Controller\GeneratorController
         $this->configure();
 
         // Defining filters
-        //$this->configureFilter();
+        $this->configureFilter();
 
         // Defining actual page
         $this->setPage($this->getRequest()->get('page', $this->getPage()));
@@ -108,7 +108,8 @@ abstract class GeneratorController extends Controller\GeneratorController
                 return $this->redirect($this->generateUrl($this->generator->route . '_new'));
             } else {
                 $this->get('session')->setFlash('success', 'The item was created successfully');
-                return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
+                return $this->redirect($this->generateUrl($this->generator->route));
+                //return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
             }
 
         }
@@ -187,7 +188,8 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->flush();
 
             $this->get('session')->setFlash('success', 'The item was updated successfully');
-            return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $id)));
+            return $this->redirect($this->generateUrl($this->generator->route));
+            //return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $id)));
         } else {
             $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Check the informed data.');
             return $this->renderView('edit', array(
@@ -250,17 +252,9 @@ abstract class GeneratorController extends Controller\GeneratorController
         // Configuring the Generator Controller
         $this->configure();
 
-
-        $this->getRequest('filtertype');
-
-        $entity = new $entityClass();
-        $form   = $this->createForm(new $formType(), $entity);
-
-        $request = $this->getRequest();
-        $form->bindRequest($request);
-
-
-        $this->getRequest()->getSession()->set($this->generator->route . '.filter', $filter);
+        if ($this->getRequest('filtertype', false)) {
+            $this->getRequest()->getSession()->set($this->generator->route . '.filter', $this->getRequest('filtertype'));
+        }
     }
 
     protected function getfilter()
