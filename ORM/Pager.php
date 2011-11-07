@@ -148,10 +148,11 @@ class Pager
                             ? false
                             : $this->currentPage - 1;
 
-        return $this->getRepository()
-                ->findBy(
+        $method = $this->generator->list->method;
+
+        return $this->getRepository()->$method(
                         array(), //$criteria,
-                        array(), //$orderBy,
+                        $this->sort, //$orderBy,
                         $this->limit,
                         ($this->currentPage -1 )* $this->limit
                         );

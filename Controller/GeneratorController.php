@@ -118,8 +118,8 @@ abstract class GeneratorController extends Controller
                 $sort['_f.' . $s] = 'asc';
             }
         }
-        $pager->setSort($sort);
 */
+        $this->pager->setSort($this->generator->list->sort);
         return $this->pager;
     }
 

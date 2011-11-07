@@ -107,14 +107,14 @@ abstract class GeneratorController extends Controller\GeneratorController
                 $this->get('session')->setFlash('success', 'The item was created successfully. Add a new one bellow.');
                 return $this->redirect($this->generateUrl($this->generator->route . '_new'));
             } else {
-                $this->get('session')->setFlash('success', 'The item was created successfully');
+                $this->get('session')->setFlash('success', 'The item was created successfully.');
                 return $this->redirect($this->generateUrl($this->generator->route));
                 //return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $entity->getId())));
             }
 
         }
 
-        $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Checked data.');
+        $this->get('session')->setFlash('error', 'An error ocurred while saving the item. Check the informed data.');
         return $this->renderView('new', array(
             'record' => $entity,
             'form'   => $form->createView()
@@ -187,7 +187,7 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->persist($entity);
             $manager->flush();
 
-            $this->get('session')->setFlash('success', 'The item was updated successfully');
+            $this->get('session')->setFlash('success', 'The item was updated successfully.');
             return $this->redirect($this->generateUrl($this->generator->route));
             //return $this->redirect($this->generateUrl($this->generator->route . '_show', array('id' => $id)));
         } else {
@@ -227,7 +227,7 @@ abstract class GeneratorController extends Controller\GeneratorController
             $manager->remove($entity);
             $manager->flush();
 
-            $this->get('session')->setFlash('success', 'The item was deleted successfully');
+            $this->get('session')->setFlash('success', 'The item was deleted successfully.');
             return $this->redirect($this->generateUrl($this->generator->route));
         } else {
             $this->get('session')->setFlash(
