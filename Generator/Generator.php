@@ -350,10 +350,18 @@ abstract class Generator extends AbstractData
     public function renderField($fieldName, $data)
     {
         if (method_exists($data, 'is' . Container::camelize($fieldName))) {
-            return $data->{'is' . Container::camelize($fieldName)}();
+            $value = $data->{'is' . Container::camelize($fieldName)}();
         } else {
-            return $data->{'get' . Container::camelize($fieldName)}();
+            $value = $data->{'get' . Container::camelize($fieldName)}();
         }
+        if (is_array($value)) {
+            $values = array();
+            foreach($value as $v) {
+                $values[] = (string) $v;
+            }
+            $value = implode(', ', $values);
+        }
+        return $value;
     }
 
     /**
