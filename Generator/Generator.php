@@ -250,6 +250,24 @@ abstract class Generator extends AbstractData
      */
     public function setNew($new)
     {
+        if (!isset($new['actions'])) {
+            $new['actions'] = array(
+                'save'         => true,
+                'save_and_add' => true,
+                'back_to_list' => true
+            );
+        } else {
+            if (!isset($new['actions']['save'])) {
+                $new['actions']['save'] = true;
+            }
+            if (!isset($new['actions']['save_and_add'])) {
+                $new['actions']['save_and_add'] = true;
+            }
+            if (!isset($new['actions']['back_to_list'])) {
+                $new['actions']['back_to_list'] = true;
+            }
+        }
+
         $this->validateAndStore('new', $new);
         return $this;
     }
