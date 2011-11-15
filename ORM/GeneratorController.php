@@ -22,14 +22,14 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         $pager = $this->getPager();
 
-//        $csrfProvider = new DefaultCsrfProvider($this->container->getParameter('kernel.secret'));
-
-        $deleteForm = $this->createDeleteForm('fake');
-
+        $filterForm = $this->createFilterForm();
+        if ($filterForm) {
+            $filterForm = $filterForm->createView();
+        }
         return $this->renderView('list' . ucfirst($this->generator->list->layout), array(
             'pager'      => $pager,
-//            'csrf_token' => $csrfProvider->generateCsrfToken('delete_record'),
-            'delete_form' => $deleteForm->createView(),
+            'delete_form' => $this->createDeleteForm('fake')->createView(),
+            'filter_form' => $filterForm,
         ));
 
     }
@@ -239,31 +239,6 @@ abstract class GeneratorController extends Controller\GeneratorController
 
     }
 
-    protected function createDeleteForm($id)
-    {
-        return $this->createFormBuilder(array('id' => $id))
-            ->add('id', 'hidden')
-            ->getForm()
-        ;
-    }
-
-    protected function configurefilter()
-    {
-        // Configuring the Generator Controller
-        $this->configure();
-
-        if ($this->getRequest('filtertype', false)) {
-            $this->getRequest()->getSession()->set($this->generator->route . '.filter', $this->getRequest('filtertype'));
-        }
-    }
-
-    protected function getfilter()
-    {
-        // Configuring the Generator Controller
-        $this->configure();
-
-        return $this->getRequest()->getSession()->get($this->generator->route . '.filter', array());
-    }
 
 
 }

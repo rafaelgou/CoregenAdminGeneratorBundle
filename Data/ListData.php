@@ -18,13 +18,7 @@ class ListData extends AbstractData
                 'length'   => null,
                 'type'     => 'string',
                 ),
-            'method' => array(
-                'required' => true,
-                'null'     => true,
-                'length'   => null,
-                'type'     => 'string',
-                ),
-            'count_method' => array(
+            'query_builder' => array(
                 'required' => true,
                 'null'     => true,
                 'length'   => null,

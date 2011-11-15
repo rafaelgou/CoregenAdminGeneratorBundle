@@ -147,17 +147,26 @@ class Pager
         $this->previousPage = ($this->currentPage == 1)
                             ? false
                             : $this->currentPage - 1;
-
-        $method = $this->generator->list->method;
-
-        return $this->getRepository()->$method(
-                        array(), //$criteria,
-                        $this->sort, //$orderBy,
-                        $this->limit,
-                        ($this->currentPage -1 )* $this->limit
-                        );
-
-                //getQueryBuilder()->getQuery()->execute();
+//        $method = $this->generator->list->method;
+//        foreach ($this->sort as $field => $order)
+//        {
+//            $this->queryBuilder->sort($field, $order);
+//        }
+//        $this->getQueryBuilder()
+//                ->addOrderBy($this->sort)
+//                ->setFirstResult(($this->currentPage -1 )* $this->limit)
+//                ->setMaxResults($this->limit);
+//        return $this->getRepository()->$method(
+//                        $this->query, //$criteria,
+//                        $this->sort, //$orderBy,
+//                        $this->limit,
+//                        ($this->currentPage -1 )* $this->limit
+//                        );
+        return $this->getQueryBuilder()
+                ->setFirstResult(($this->currentPage -1 )* $this->limit)
+                ->setMaxResults($this->limit)
+                ->getQuery()
+                ->getResult();
     }
 
     /**
@@ -178,18 +187,55 @@ class Pager
      */
     public function getQueryBuilder()
     {
-        $skip  = $this->currentPage <= 1 ? 0 : ($this->currentPage-1) * $this->limit;
+        if (null === $this->queryBuilder) {
 
+            $queryBuilder = $this->generator->list->query_builder;
 
-        $this->queryBuilder = $this->entityManager
-                                ->createQueryBuilder($this->generator->model)
-                                ->setQueryArray($this->query)
-                                ->limit($this->limit)
-                                ->skip($skip);
+            if ( null !== $this->generator->list->query_builder
+                 && false !== $this->generator->list->query_builder
+                 && method_exists($this->getRepository(), $queryBuilder)) {
+                    $this->queryBuilder = $this->getRepository()->$queryBuilder();
+            } else {
+                $this->queryBuilder =  $this->getRepository()->createQueryBuilder('e');
+            }
 
-        foreach ($this->sort as $field => $order)
-        {
-            $this->queryBuilder->sort($field, $order);
+            foreach ($this->sort as $field => $order)
+            {
+                $this->queryBuilder->addOrderBy('e.' . $field, $order);
+            }
+
+            if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
+                $counter = 0;
+                foreach ($this->generator->filter->fields as $fieldName => $field) {
+                    if (isset($fieldName) && isset($field['type']) && isset($field['compare'])) {
+                        $counter++;
+
+                        $compare = $this->getCompare($field['compare']);
+
+                        switch($field['type']) {
+                            case 'daterange':
+                                if (isset($this->query[$fieldName])) {
+                                    $this->queryBuilder->andWhere("e.{$fieldName} " . $this->getCompare($field['compare'] . " ?"));
+                                    $this->queryBuilder->setParameter($counter, array(
+                                        $this->query[$fieldName]['first'],
+                                        $this->query[$fieldName]['second']
+                                        ));
+                                }
+                                break;
+                            case 'text':
+                            default:
+                                if (isset($this->query[$fieldName])) {
+                                    $this->queryBuilder->andWhere(
+                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", '?1')
+                                        );
+                                    $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
         }
         return $this->queryBuilder;
     }
@@ -266,11 +312,9 @@ class Pager
     public function getCount()
     {
         if (null === $this->count) {
-            $result = $this->getRepository()
-                ->createQueryBuilder('e')
-                ->addSelect('count(e.id) as total_count')
-                ->getQuery()
-                ->execute();
+            $qb = clone $this->getQueryBuilder();
+            $query = $qb->addSelect('count(e.id) as total_count');
+            $result = $query->getQuery()->execute();
             $this->count = $result[0]['total_count'];
         }
         return $this->count;
@@ -387,8 +431,53 @@ class Pager
         }
         return $pages;
 
+    }
 
-
+    /**
+     * Get corrected compare for Doctrine Expr
+     * @param string $compare
+     * @returm string
+     */
+    protected function getCompare($compare) {
+        switch ($compare) {
+            case 'neq':
+            case '!=':
+                return 'neq';
+                break;
+            case 'lt':
+            case '<':
+                return 'lt';
+                break;
+            case 'lte':
+            case '<=':
+                return 'lte';
+                break;
+            case 'gt':
+            case '>':
+                return 'gt';
+                break;
+            case 'gte':
+            case '>=':
+                return 'gte';
+                break;
+            case 'in':
+                return 'in';
+                break;
+            case 'notIn':
+                return 'notIn';
+                break;
+            case 'like':
+                return 'like';
+                break;
+            case 'between':
+                return 'between';
+                break;
+            case 'eq':
+            case '=':
+            default:
+                return 'eq';
+                break;
+        }
     }
 
 }

@@ -4,6 +4,7 @@ namespace Coregen\AdminGeneratorBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Coregen\AdminGeneratorBundle\Generator\Generator;
+use Coregen\AdminGeneratorBundle\Form\FilterType;
 
 abstract class GeneratorController extends Controller
 {
@@ -45,7 +46,13 @@ abstract class GeneratorController extends Controller
 
     abstract public function deleteAction($id);
 
-    abstract protected function createDeleteForm($id);
+    protected function loadGenerator(Generator $generator)
+    {
+        $this->generator = $generator;
+        $this->pager = $this->get('coregen.orm.pager')
+                ->setGenerator($generator);
+
+    }
 
     /**
      * Returns the Doctrine ORM/EntityManager or ODM/DocumentManager
@@ -106,20 +113,13 @@ abstract class GeneratorController extends Controller
     {
         $this->pager->setCurrent($page ? $page : $this->getPage());
         $this->pager->setLimit($max_per_page ? $max_per_page : $this->generator->list->max_per_page);
-        $this->pager->setQuery($query);
-/*
-        if ($sort)
-        {
-            if (!is_array($sort)) $sort[$sort] = 'asc';
+        $this->pager->setQuery($query ? $query : $this->getQuery());
+        print_r($this->getQuery());
+        if ($sort && is_array($sort)) {
+            $this->pager->setSort($sort);
         } else {
-            $sort = array();
-            foreach ($this->getDefinitionModel()->getList()->getSort() as $s)
-            {
-                $sort['_f.' . $s] = 'asc';
-            }
+            $this->pager->setSort($this->generator->list->sort);
         }
-*/
-        $this->pager->setSort($this->generator->list->sort);
         return $this->pager;
     }
 
@@ -144,11 +144,106 @@ abstract class GeneratorController extends Controller
         $this->getRequest()->getSession()->set($this->generator->class . '.page', $page);
     }
 
-    protected function loadGenerator(Generator $generator)
-    {
-        $this->generator = $generator;
-        $this->pager = $this->get('coregen.orm.pager')
-                ->setGenerator($generator);
 
+    protected function getQuery()
+    {
+        return $this->getFilter();
     }
+
+    protected function createDeleteForm($id)
+    {
+        return $this->createFormBuilder(array('id' => $id))
+            ->add('id', 'hidden')
+            ->getForm()
+        ;
+    }
+
+    protected function configurefilter()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+        $filtertype = $this->getRequest()->get('filtertype', false);
+
+        if ($filtertype) {
+
+            if (isset($filtertype['reset'])) {
+                $filter = array();
+            } else {
+                $filter = array();
+                foreach ($this->getRequest()->get('filtertype', false) as $key => $value) {
+                    if ($value != '') {
+                        $filter[$key] = $value;
+                    }
+                }
+            }
+            $this->getRequest()->getSession()->set($this->generator->route . '.filter', $filter);
+        }
+    }
+
+    protected function getFilter()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+
+        return $this->getRequest()->getSession()->get($this->generator->route . '.filter', array());
+    }
+
+    protected function createFilterForm()
+    {
+
+        // Configuring the Generator Controller
+        $this->configure();
+
+        if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
+
+            foreach ($this->generator->filter->fields as $fieldName => $field) {
+                $form = $this->container->get('form.factory')->createBuilder(new FilterType(), $this->getFilter() ? $this->getFilter(): array(), array());
+                $field['options'] = isset($field['options']) ? $field['options'] : array();
+
+                switch($field['type']) {
+                    case 'daterange':
+                        $form->add(
+                                $fieldName,
+                                'repeated',
+                                array_merge(
+                                    $field['options'],
+                                    array(
+                                        'type'            => 'date',
+                                        'invalid_message' => '',
+                                        'first_name'      => 'from',
+                                        'second_name'     => 'to',
+                                        'required'        => false,
+                                        'label'           => $this->generator->filter->fields[$fieldName]['label'],
+                                        'options'         => array(
+                                            'format' => \IntlDateFormatter::SHORT,
+                                            'widget' => 'single_text',
+                                            'attr'   => array('class'=>'date medium'),
+                                        )
+                                    ))
+                        );
+                        break;
+                    case 'text':
+                    default:
+                        $form->add(
+                                $fieldName,
+                                $field['type'],
+                                array_merge(
+                                    $field['options'],
+                                    array(
+                                        'required' => false,
+                                        'label' => $this->generator->filter->fields[$fieldName]['label'],
+                                    ))
+                        );
+                        break;
+                }
+            }
+            $form = $form->getForm();
+        } else {
+            $form = false;
+        }
+
+        return $form;
+        ;
+    }
+
 }

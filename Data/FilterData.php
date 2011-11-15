@@ -18,7 +18,7 @@ class FilterData extends AbstractData
                 'length'   => null,
                 'type'     => 'string',
                 ),
-            'display' => array(
+            'fields' => array(
                 'required' => true,
                 'null'     => true,
                 'length'   => null,
