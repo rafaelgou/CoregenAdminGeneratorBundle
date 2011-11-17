@@ -114,7 +114,6 @@ abstract class GeneratorController extends Controller
         $this->pager->setCurrent($page ? $page : $this->getPage());
         $this->pager->setLimit($max_per_page ? $max_per_page : $this->generator->list->max_per_page);
         $this->pager->setQuery($query ? $query : $this->getQuery());
-        print_r($this->getQuery());
         if ($sort && is_array($sort)) {
             $this->pager->setSort($sort);
         } else {
