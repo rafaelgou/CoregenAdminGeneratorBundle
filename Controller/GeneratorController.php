@@ -140,7 +140,7 @@ abstract class GeneratorController extends Controller
      */
     protected function setPage($page)
     {
-        $this->getRequest()->getSession()->set($this->generator->class . '.page', $page);
+        $this->getRequest()->getSession()->set($this->generator->route . '.page', $page);
     }
 
 
@@ -171,9 +171,30 @@ abstract class GeneratorController extends Controller
                 $filter = array();
                 foreach ($this->getRequest()->get('filtertype', false) as $key => $value) {
                     if ($value != '') {
-                        $filter[$key] = $value;
+                        $keyClean = str_replace('_from', '',$key);
+                        $keyClean = str_replace('_to', '',$keyClean);
+
+                        if ($this->generator->filter->fields[$keyClean]['type'] == 'daterange') {
+                            $dateFormaterDefault = \IntlDateFormatter::create(
+                                $this->getRequest()->getSession()->getLocale(),
+                                \IntlDateFormatter::MEDIUM,
+                                \IntlDateFormatter::NONE
+                            );
+                            $dateFormaterEn = \IntlDateFormatter::create(
+                                'en',
+                                \IntlDateFormatter::MEDIUM,
+                                \IntlDateFormatter::NONE
+                            );
+                            //print_r($dateFormater->format($value));
+                            //$filter[$key] = $date->format($dateFormater->getPattern());
+                            $filter[$key] = $dateFormaterEn->format($dateFormaterDefault->parse($value));
+                        } else {
+                            $filter[$key] = $value;
+                        }
+
                     }
                 }
+                //print_r($filter);exit;
             }
             $this->getRequest()->getSession()->set($this->generator->route . '.filter', $filter);
         }
@@ -195,29 +216,38 @@ abstract class GeneratorController extends Controller
 
         if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
 
+            $form = $this->container->get('form.factory')->createBuilder(new FilterType(), $this->getFilter() ? $this->getFilter(): array(), array());
             foreach ($this->generator->filter->fields as $fieldName => $field) {
-                $form = $this->container->get('form.factory')->createBuilder(new FilterType(), $this->getFilter() ? $this->getFilter(): array(), array());
                 $field['options'] = isset($field['options']) ? $field['options'] : array();
 
                 switch($field['type']) {
                     case 'daterange':
                         $form->add(
-                                $fieldName,
-                                'repeated',
+                                $fieldName . '_from',
+                                'date',
                                 array_merge(
                                     $field['options'],
                                     array(
-                                        'type'            => 'date',
-                                        'invalid_message' => '',
-                                        'first_name'      => 'from',
-                                        'second_name'     => 'to',
-                                        'required'        => false,
-                                        'label'           => $this->generator->filter->fields[$fieldName]['label'],
-                                        'options'         => array(
-                                            'format' => \IntlDateFormatter::SHORT,
-                                            'widget' => 'single_text',
-                                            'attr'   => array('class'=>'date medium'),
-                                        )
+                                        'required' => false,
+                                        'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
+                                        'format' => 'dd/MM/yyyy',//\IntlDateFormatter::MEDIUM,
+                                        'widget'   => 'single_text',
+                                        'attr'     => array('class'=>'date span2'),
+                                        'input'    => 'string'
+                                    ))
+                        );
+                        $form->add(
+                                $fieldName . '_to',
+                                'date',
+                                array_merge(
+                                    $field['options'],
+                                    array(
+                                        'required' => false,
+                                        'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
+                                        'format' => \IntlDateFormatter::MEDIUM,
+                                        'widget' => 'single_text',
+                                        'attr'   => array('class'=>'date span2'),
+                                        'input'    => 'string'
                                     ))
                         );
                         break;

@@ -207,26 +207,33 @@ class Pager
             if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
                 $counter = 0;
                 foreach ($this->generator->filter->fields as $fieldName => $field) {
-                    if (isset($fieldName) && isset($field['type']) && isset($field['compare'])) {
-                        $counter++;
-
-                        $compare = $this->getCompare($field['compare']);
-
+                    if (isset($field['type'])) {
                         switch($field['type']) {
+
                             case 'daterange':
-                                if (isset($this->query[$fieldName])) {
-                                    $this->queryBuilder->andWhere("e.{$fieldName} " . $this->getCompare($field['compare'] . " ?"));
-                                    $this->queryBuilder->setParameter($counter, array(
-                                        $this->query[$fieldName]['first'],
-                                        $this->query[$fieldName]['second']
-                                        ));
+
+                                $dateFormaterEn = \IntlDateFormatter::create('en',\IntlDateFormatter::MEDIUM,\IntlDateFormatter::NONE);
+                                if (isset($this->query[$fieldName .'_from']) && $this->query[$fieldName .'_from'] != '') {
+                                    $counter++;
+                                    $this->queryBuilder->andWhere("e.{$fieldName} >= ?{$counter}");
+                                    $dateFrom = date('Y-m-d H:i:s', $dateFormaterEn->parse($this->query[$fieldName .'_from']));
+                                    $this->queryBuilder->setParameter($counter, $dateFrom);
+                                }
+                                if (isset($this->query[$fieldName .'_to']) && $this->query[$fieldName .'_to'] != '') {
+                                    $counter++;
+                                    $this->queryBuilder->andWhere("e.{$fieldName} <= ?{$counter}");
+                                    $dateTo = date('Y-m-d H:i:s', $dateFormaterEn->parse($this->query[$fieldName .'_to']));
+                                    $this->queryBuilder->setParameter($counter, $dateTo);
                                 }
                                 break;
+
                             case 'text':
                             default:
                                 if (isset($this->query[$fieldName])) {
+                                    $counter++;
+                                    $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
                                     $this->queryBuilder->andWhere(
-                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", '?1')
+                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
                                         );
                                     $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
                                 }
@@ -474,6 +481,7 @@ class Pager
                 break;
             case 'eq':
             case '=':
+            case null:
             default:
                 return 'eq';
                 break;
