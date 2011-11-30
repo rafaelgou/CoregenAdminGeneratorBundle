@@ -216,13 +216,13 @@ class Pager
                                 if (isset($this->query[$fieldName .'_from']) && $this->query[$fieldName .'_from'] != '') {
                                     $counter++;
                                     $this->queryBuilder->andWhere("e.{$fieldName} >= ?{$counter}");
-                                    $dateFrom = date('Y-m-d H:i:s', $dateFormaterEn->parse($this->query[$fieldName .'_from']));
+                                    $dateFrom = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_from'])) . ' 00:00:00';
                                     $this->queryBuilder->setParameter($counter, $dateFrom);
                                 }
                                 if (isset($this->query[$fieldName .'_to']) && $this->query[$fieldName .'_to'] != '') {
                                     $counter++;
                                     $this->queryBuilder->andWhere("e.{$fieldName} <= ?{$counter}");
-                                    $dateTo = date('Y-m-d H:i:s', $dateFormaterEn->parse($this->query[$fieldName .'_to']));
+                                    $dateTo = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_to'])) . ' 23:59:59';
                                     $this->queryBuilder->setParameter($counter, $dateTo);
                                 }
                                 break;
