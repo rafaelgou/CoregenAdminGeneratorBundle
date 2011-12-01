@@ -194,16 +194,24 @@ class Pager
      *
      * @param Doctrine\ODM\MongoDB\Query\Builder $queryBuilder A query builder instance
      */
-    public function setQueryBuilder($queryBuilder, $ignoreSort=true, $ignoreFilters=false)
+
+    /**
+     *
+     * @param Doctrine\ODM\MongoDB\Query\Builder  $queryBuilder        A query builder instance
+     * @param boolean                             $useGeneratorSort    Use default generator.list.sort, false to use QueryBuilder's instead
+     * @param boolean                             $useGeneartorFilters Use default generator.filter + ::setQuery(), default to false
+     * @return Pager
+     */
+    public function setQueryBuilder($queryBuilder, $useGeneratorSort=true, $useGeneratorFilters=false)
     {
         $this->queryBuilder = $queryBuilder;
-        if (!$ignoreSort) {
+        if ($useGeneratorSort) {
             foreach ($this->sort as $field => $order)
             {
                 $this->queryBuilder->addOrderBy('e.' . $field, $order);
             }
         }
-        if (!$ignoreFilters) {
+        if ($useGeneratorFilters) {
             $this->processFilters();
         }
         return $this;
