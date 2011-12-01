@@ -94,7 +94,17 @@ class Pager
     }
 
     /**
-     * Defines the generator
+     * Get the generator
+     *
+     * @return Coregen\AdminGeneratorBundle\Generator\Generator
+     */
+    public function getGenerator()
+    {
+        return $this->generator;
+    }
+
+    /**
+     * Define the generator
      *
      * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator The Coregen Generator
      */
@@ -105,7 +115,7 @@ class Pager
     }
 
     /**
-     * Returns de Repository
+     * Return de Repository
      *
      * @return Doctrine\ORM\EntityRepository
      */
@@ -119,7 +129,7 @@ class Pager
     }
 
     /**
-     * Returns de EntityManager
+     * Return de EntityManager
      *
      * @return Doctrine\ORM\EntityManager
      */
@@ -179,9 +189,28 @@ class Pager
         return $this->execute();
     }
 
+    /**
+     * Define the Query Builder
+     *
+     * @param Doctrine\ODM\MongoDB\Query\Builder $queryBuilder A query builder instance
+     */
+    public function setQueryBuilder($queryBuilder, $ignoreSort=true, $ignoreFilters=false)
+    {
+        $this->queryBuilder = $queryBuilder;
+        if (!$ignoreSort) {
+            foreach ($this->sort as $field => $order)
+            {
+                $this->queryBuilder->addOrderBy('e.' . $field, $order);
+            }
+        }
+        if (!$ignoreFilters) {
+            $this->processFilters();
+        }
+        return $this;
+    }
 
     /**
-     * Returns the Query Builder
+     * Return the Query Builder
      *
      * @return Doctrine\ODM\MongoDB\Query\Builder
      */
@@ -204,48 +233,54 @@ class Pager
                 $this->queryBuilder->addOrderBy('e.' . $field, $order);
             }
 
-            if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
-                $counter = 0;
-                foreach ($this->generator->filter->fields as $fieldName => $field) {
-                    if (isset($field['type'])) {
-                        switch($field['type']) {
-
-                            case 'daterange':
-
-                                $dateFormaterEn = \IntlDateFormatter::create('en',\IntlDateFormatter::MEDIUM,\IntlDateFormatter::NONE);
-                                if (isset($this->query[$fieldName .'_from']) && $this->query[$fieldName .'_from'] != '') {
-                                    $counter++;
-                                    $this->queryBuilder->andWhere("e.{$fieldName} >= ?{$counter}");
-                                    $dateFrom = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_from'])) . ' 00:00:00';
-                                    $this->queryBuilder->setParameter($counter, $dateFrom);
-                                }
-                                if (isset($this->query[$fieldName .'_to']) && $this->query[$fieldName .'_to'] != '') {
-                                    $counter++;
-                                    $this->queryBuilder->andWhere("e.{$fieldName} <= ?{$counter}");
-                                    $dateTo = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_to'])) . ' 23:59:59';
-                                    $this->queryBuilder->setParameter($counter, $dateTo);
-                                }
-                                break;
-
-                            case 'text':
-                            default:
-                                if (isset($this->query[$fieldName])) {
-                                    $counter++;
-                                    $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
-                                    $this->queryBuilder->andWhere(
-                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
-                                        );
-                                    $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
+            $this->processFilters();
 
         }
         return $this->queryBuilder;
     }
+
+    protected function processFilters()
+    {
+        if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
+            $counter = 0;
+            foreach ($this->generator->filter->fields as $fieldName => $field) {
+                if (isset($field['type'])) {
+                    switch($field['type']) {
+
+                        case 'daterange':
+
+                            $dateFormaterEn = \IntlDateFormatter::create('en',\IntlDateFormatter::MEDIUM,\IntlDateFormatter::NONE);
+                            if (isset($this->query[$fieldName .'_from']) && $this->query[$fieldName .'_from'] != '') {
+                                $counter++;
+                                $this->queryBuilder->andWhere("e.{$fieldName} >= ?{$counter}");
+                                $dateFrom = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_from'])) . ' 00:00:00';
+                                $this->queryBuilder->setParameter($counter, $dateFrom);
+                            }
+                            if (isset($this->query[$fieldName .'_to']) && $this->query[$fieldName .'_to'] != '') {
+                                $counter++;
+                                $this->queryBuilder->andWhere("e.{$fieldName} <= ?{$counter}");
+                                $dateTo = date('Y-m-d', $dateFormaterEn->parse($this->query[$fieldName .'_to'])) . ' 23:59:59';
+                                $this->queryBuilder->setParameter($counter, $dateTo);
+                            }
+                            break;
+
+                        case 'text':
+                        default:
+                            if (isset($this->query[$fieldName])) {
+                                $counter++;
+                                $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
+                                $this->queryBuilder->andWhere(
+                                        $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
+                                    );
+                                $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * Sets the query limit
@@ -312,7 +347,7 @@ class Pager
     }
 
     /**
-     * Returns the documents count
+     * Return the documents count
      *
      * @return integer
      */
@@ -328,7 +363,7 @@ class Pager
     }
 
     /**
-     * Returns the documents count
+     * Return the documents count
      *
      * @return integer
      */
@@ -338,7 +373,7 @@ class Pager
     }
 
     /**
-     * Returns actual page
+     * Return actual page
      *
      * @return integer
      */
@@ -348,7 +383,7 @@ class Pager
     }
 
     /**
-     * Returns next page
+     * Return next page
      *
      * @return integer
      */
@@ -358,7 +393,7 @@ class Pager
     }
 
     /**
-     * Returns previous page
+     * Return previous page
      *
      * @return integer
      */
@@ -368,7 +403,7 @@ class Pager
     }
 
     /**
-     * Returns last page
+     * Return last page
      *
      * @return integer
      */
@@ -408,7 +443,7 @@ class Pager
     }
 
     /**
-     * Returns the page range to paginate
+     * Return the page range to paginate
      *
      * @return array
      */
