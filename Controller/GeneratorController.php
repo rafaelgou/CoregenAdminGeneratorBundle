@@ -128,7 +128,7 @@ abstract class GeneratorController extends Controller
      */
     protected function getPage()
     {
-      return $this->getRequest()->getSession()->get($this->generator->class . '.page', 1);
+      return $this->getRequest()->getSession()->get($this->generator->route . '.page', 1);
     }
 
     /**
