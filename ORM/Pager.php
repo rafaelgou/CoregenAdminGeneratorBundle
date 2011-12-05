@@ -272,6 +272,28 @@ class Pager
                             }
                             break;
 
+                        case 'entity':
+                            if (isset($this->query[$fieldName]) && $this->query[$fieldName] != '') {
+                                try {
+                                    $entity = $this->doctrineRegistry->getEntityManager()
+                                            ->getRepository($field['options']['class'])
+                                            ->find($this->query[$fieldName]);
+                                } catch (Exception $exc) {
+                                    $entity =  false;
+                                }
+
+                                if ($entity) {
+                                    $counter++;
+                                    $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
+                                    $this->queryBuilder->andWhere(
+                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
+                                        );
+                                    $this->queryBuilder->setParameter($counter, $entity);
+                                }
+
+                            }
+                            break;
+
                         case 'text':
                         default:
                             if (isset($this->query[$fieldName])) {

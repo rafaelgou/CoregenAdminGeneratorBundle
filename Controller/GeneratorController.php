@@ -208,6 +208,41 @@ abstract class GeneratorController extends Controller
         return $this->getRequest()->getSession()->get($this->generator->route . '.filter', array());
     }
 
+    protected function getFilterFormData()
+    {
+        if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
+
+            $data = $this->getFilter();
+            foreach ($this->generator->filter->fields as $fieldName => $field) {
+                switch($field['type']) {
+                    case 'entity':
+                        try {
+                            if (isset($data[$fieldName]) && $data[$fieldName] != '') {
+                                $entity = $this->getDoctrine()->getEntityManager()
+                                                    ->getRepository($field['options']['class'])
+                                                    ->find($data[$fieldName]);
+                                if ($entity) {
+                                    $data[$fieldName] = $entity;
+                                } else {
+                                    unset($data[$fieldName]);
+                                }
+                            }
+
+                        } catch (Exception  $exc) {
+                            unset($data[$fieldName]);
+                        }
+                        break;
+                    case 'daterange':
+                    case 'text':
+                    default:
+                        break;
+                }
+            }
+        }
+        return $data;
+
+    }
+
     protected function createFilterForm()
     {
 
@@ -216,7 +251,7 @@ abstract class GeneratorController extends Controller
 
         if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
 
-            $form = $this->container->get('form.factory')->createBuilder(new FilterType(), $this->getFilter() ? $this->getFilter(): array(), array());
+            $form = $this->container->get('form.factory')->createBuilder(new FilterType(), $this->getFilterFormData(), array());
             foreach ($this->generator->filter->fields as $fieldName => $field) {
                 $field['options'] = isset($field['options']) ? $field['options'] : array();
 
@@ -251,6 +286,7 @@ abstract class GeneratorController extends Controller
                                     ))
                         );
                         break;
+                    case 'entity':
                     case 'text':
                     default:
                         $form->add(
@@ -266,6 +302,7 @@ abstract class GeneratorController extends Controller
                         break;
                 }
             }
+            //$form->setData()
             $form = $form->getForm();
         } else {
             $form = false;
