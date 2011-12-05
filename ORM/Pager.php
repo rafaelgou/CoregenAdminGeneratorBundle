@@ -157,21 +157,7 @@ class Pager
         $this->previousPage = ($this->currentPage == 1)
                             ? false
                             : $this->currentPage - 1;
-//        $method = $this->generator->list->method;
-//        foreach ($this->sort as $field => $order)
-//        {
-//            $this->queryBuilder->sort($field, $order);
-//        }
-//        $this->getQueryBuilder()
-//                ->addOrderBy($this->sort)
-//                ->setFirstResult(($this->currentPage -1 )* $this->limit)
-//                ->setMaxResults($this->limit);
-//        return $this->getRepository()->$method(
-//                        $this->query, //$criteria,
-//                        $this->sort, //$orderBy,
-//                        $this->limit,
-//                        ($this->currentPage -1 )* $this->limit
-//                        );
+
         return $this->getQueryBuilder()
                 ->setFirstResult(($this->currentPage -1 )* $this->limit)
                 ->setMaxResults($this->limit)
