@@ -189,6 +189,35 @@ abstract class Generator extends AbstractData
      */
     public function setList($list)
     {
+        if (!isset($list['object_actions'])) {
+            $list['object_actions'] = array(
+                'edit'   => true,
+                'view'   => true,
+                'delete' => true
+            );
+        } else {
+            if (!isset($list['object_actions']['edit'])) {
+                $list['object_actions']['edit'] = true;
+            }
+            if (!isset($list['object_actions']['view'])) {
+                $list['object_actions']['view'] = true;
+            }
+            if (!isset($list['object_actions']['delete'])) {
+                $list['object_actions']['delete'] = true;
+            }
+        }
+//echo '<pre>';print_r($list); exit;
+
+        if (!isset($list['batch_actions'])) {
+            $list['batch_actions'] = array(
+                'delete' => true
+            );
+        } else {
+            if (!isset($list['batch_actions']['delete'])) {
+                $list['batch_actions']['delete'] = true;
+            }
+        }
+
         $this->validateAndStore('list', $list);
         return $this;
     }
