@@ -157,14 +157,14 @@ abstract class GeneratorController extends Controller
         ;
     }
 
-    protected function configurefilter()
+    protected function configureFilter()
     {
         // Configuring the Generator Controller
         $this->configure();
         $filtertype = $this->getRequest()->get('filtertype', false);
-
+        
         if ($filtertype) {
-
+            $this->setPage(1);
             if (isset($filtertype['reset'])) {
                 $filter = array();
             } else {
