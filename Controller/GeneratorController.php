@@ -107,7 +107,7 @@ abstract class GeneratorController extends Controller
      *
      * @return void
      */
-    abstract public function loadGenerator(Generator $generator);
+    abstract public function loadGenerator($generator);
 
     /**
      * Return the Doctrine ORM/EntityManager or ODM/DocumentManager

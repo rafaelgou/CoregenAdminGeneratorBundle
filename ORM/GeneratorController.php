@@ -3,6 +3,7 @@
 namespace Coregen\AdminGeneratorBundle\ORM;
 
 use Coregen\AdminGeneratorBundle\Controller;
+use Coregen\AdminGeneratorBundle\Generator\Generator;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 
 /**
@@ -21,7 +22,7 @@ abstract class GeneratorController extends Controller\GeneratorController
      *
      * @return void
      */
-    protected function loadGenerator(Generator $generator)
+    public function loadGenerator($generator)
     {
         $this->generator = $generator;
         $this->pager = $this->get('coregen.orm.pager')
