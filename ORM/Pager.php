@@ -7,7 +7,13 @@ use Doctrine\ORM\EntityRepository;
 use Coregen\AdminGeneratorBundle\Generator\Generator;
 use Symfony\Bundle\DoctrineBundle\Registry;
 
-
+/**
+ * ORM Generator Pager
+ *
+ * @package    CoregenAdminGenerator
+ * @subpackage ORM
+ * @author     Rafael Goulart <rafaelgou@gmail.com>
+ */
 class Pager
 {
     /**
@@ -107,6 +113,8 @@ class Pager
      * Define the generator
      *
      * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator The Coregen Generator
+     *
+     * @return void
      */
     public function setGenerator(Generator $generator)
     {
@@ -182,18 +190,19 @@ class Pager
      */
 
     /**
+     * Set Query Buildr
      *
-     * @param Doctrine\ODM\MongoDB\Query\Builder  $queryBuilder        A query builder instance
-     * @param boolean                             $useGeneratorSort    Use default generator.list.sort, false to use QueryBuilder's instead
-     * @param boolean                             $useGeneartorFilters Use default generator.filter + ::setQuery(), default to false
+     * @param Doctrine\ODM\MongoDB\Query\Builder $queryBuilder        A query builder instance
+     * @param boolean                            $useGeneratorSort    Use default generator.list.sort, false to use QueryBuilder's instead
+     * @param boolean                            $useGeneratorFilters Use default generator.filter + ::setQuery(), default to false
+     *
      * @return Pager
      */
     public function setQueryBuilder($queryBuilder, $useGeneratorSort=true, $useGeneratorFilters=false)
     {
         $this->queryBuilder = $queryBuilder;
         if ($useGeneratorSort) {
-            foreach ($this->sort as $field => $order)
-            {
+            foreach ($this->sort as $field => $order) {
                 $this->queryBuilder->addOrderBy('e.' . $field, $order);
             }
         }
@@ -222,8 +231,7 @@ class Pager
                 $this->queryBuilder =  $this->getRepository()->createQueryBuilder('e');
             }
 
-            foreach ($this->sort as $field => $order)
-            {
+            foreach ($this->sort as $field => $order) {
                 $this->queryBuilder->addOrderBy('e.' . $field, $order);
             }
 
@@ -233,6 +241,11 @@ class Pager
         return $this->queryBuilder;
     }
 
+    /**
+     * Process filters
+     *
+     * @return void
+     */
     protected function processFilters()
     {
         if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
@@ -243,7 +256,7 @@ class Pager
 
                         case 'daterange':
 
-                            $dateFormaterEn = \IntlDateFormatter::create('en',\IntlDateFormatter::MEDIUM,\IntlDateFormatter::NONE);
+                            $dateFormaterEn = \IntlDateFormatter::create('en', \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
                             if (isset($this->query[$fieldName .'_from']) && $this->query[$fieldName .'_from'] != '') {
                                 $counter++;
                                 $this->queryBuilder->andWhere("e.{$fieldName} >= ?{$counter}");
@@ -272,8 +285,8 @@ class Pager
                                     $counter++;
                                     $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
                                     $this->queryBuilder->andWhere(
-                                            $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
-                                        );
+                                        $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
+                                    );
                                     $this->queryBuilder->setParameter($counter, $entity);
                                 }
 
@@ -286,8 +299,8 @@ class Pager
                                 $counter++;
                                 $compare = $this->getCompare(isset($field['compare']) ? $field['compare'] : null);
                                 $this->queryBuilder->andWhere(
-                                        $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
-                                    );
+                                    $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
+                                );
                                 $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
                             }
                             break;
@@ -314,7 +327,7 @@ class Pager
     /**
      * Sets the query page
      *
-     * @param int $page
+     * @param int $page The page number
      *
      * @return DynamicPager
      */
@@ -340,7 +353,9 @@ class Pager
 
     /**
      * Sets the query
-     * @param array $query
+     *
+     * @param array $query The query
+     *
      * @return DynamicPager
      */
     public function setQuery($query=array())
@@ -352,7 +367,7 @@ class Pager
     /**
      * Sets the query sort
      *
-     * @param array $sort
+     * @param array $sort The sort
      *
      * @return  Pager
      */
@@ -493,10 +508,13 @@ class Pager
 
     /**
      * Get corrected compare for Doctrine Expr
-     * @param string $compare
-     * @returm string
+     *
+     * @param string $compare Comparision to transform
+     *
+     * @return string
      */
-    protected function getCompare($compare) {
+    protected function getCompare($compare)
+    {
         switch ($compare) {
             case 'neq':
             case '!=':

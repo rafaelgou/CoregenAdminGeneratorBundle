@@ -12,9 +12,19 @@ use Coregen\AdminGeneratorBundle\Data\ShowData;
 use Coregen\AdminGeneratorBundle\Data\FilterData;
 use Symfony\Component\DependencyInjection\Container;
 
+/**
+ * Generator
+ *
+ * @package CoregenAdminGenerator
+ * @author  Rafael Goulart <rafaelgou@gmail.com>
+ */
 abstract class Generator extends AbstractData
 {
 
+    /**
+     * Config
+     * @var array
+     */
     protected $config = null;
 
     /**
@@ -30,13 +40,28 @@ abstract class Generator extends AbstractData
         'filter' => '\Coregen\AdminGeneratorBundle\Data\FilterData',
     );
 
+    /**
+     * Configure
+     *
+     * @return void
+     */
     abstract protected function configure();
 
+    /**
+     * Constructor
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->configure();
     }
 
+    /**
+     * Get Metadata for create Data Structured
+     *
+     * @return array
+     */
     protected function getMetadata()
     {
         return array(
@@ -120,6 +145,8 @@ abstract class Generator extends AbstractData
      * Define Class Name
      *
      * @param mixed $class The Class Name
+     *
+     * @return Generator
      */
     public function setClass($class)
     {
@@ -131,6 +158,8 @@ abstract class Generator extends AbstractData
      * Define Model Name
      *
      * @param mixed $model The Model Name
+     *
+     * @return Generator
      */
     public function setModel($model)
     {
@@ -142,6 +171,8 @@ abstract class Generator extends AbstractData
      * Define Layout Theme Name
      *
      * @param mixed $theme The Class Name
+     *
+     * @return Generator
      */
     public function setLayoutTheme($theme)
     {
@@ -153,6 +184,8 @@ abstract class Generator extends AbstractData
      * Define Core Theme Name
      *
      * @param mixed $theme The Class Name
+     *
+     * @return Generator
      */
     public function setCoreTheme($theme)
     {
@@ -164,6 +197,8 @@ abstract class Generator extends AbstractData
      * Define Route
      *
      * @param mixed $route The Route
+     *
+     * @return Generator
      */
     public function setRoute($route)
     {
@@ -175,6 +210,8 @@ abstract class Generator extends AbstractData
      * Define Actions
      *
      * @param mixed $actions The Actions
+     *
+     * @return Generator
      */
     public function setActions($actions)
     {
@@ -186,6 +223,8 @@ abstract class Generator extends AbstractData
      * Define List
      *
      * @param mixed $list The List
+     *
+     * @return Generator
      */
     public function setList($list)
     {
@@ -206,7 +245,6 @@ abstract class Generator extends AbstractData
                 $list['object_actions']['delete'] = true;
             }
         }
-//echo '<pre>';print_r($list); exit;
 
         if (!isset($list['batch_actions'])) {
             $list['batch_actions'] = array(
@@ -226,11 +264,13 @@ abstract class Generator extends AbstractData
      * Define Fields
      *
      * @param mixed $fields The Fields
+     *
+     * @return Generator
      */
     public function setFields($fields)
     {
         $newFields = array();
-        foreach($fields as $name => $field) {
+        foreach ($fields as $name => $field) {
             $newFields[$name] = $field;
             if (!isset($field['label'])) {
                 $newFields[$name]['label'] = ucfirst($field);
@@ -254,6 +294,8 @@ abstract class Generator extends AbstractData
      * Define Form
      *
      * @param mixed $form The Form
+     *
+     * @return Generator
      */
     public function setForm($form)
     {
@@ -265,6 +307,8 @@ abstract class Generator extends AbstractData
      * Define Edit
      *
      * @param mixed $edit The Edit
+     *
+     * @return Generator
      */
     public function setEdit($edit)
     {
@@ -276,6 +320,8 @@ abstract class Generator extends AbstractData
      * Define New
      *
      * @param mixed $new The New
+     *
+     * @return Generator
      */
     public function setNew($new)
     {
@@ -305,6 +351,8 @@ abstract class Generator extends AbstractData
      * Define Show
      *
      * @param mixed $show The Show
+     *
+     * @return Generator
      */
     public function setShow($show)
     {
@@ -316,6 +364,8 @@ abstract class Generator extends AbstractData
      * Define Filter
      *
      * @param mixed $filter The Filter
+     *
+     * @return Generator
      */
     public function setFilter($filter)
     {
@@ -326,6 +376,8 @@ abstract class Generator extends AbstractData
     /**
      * Return just the fields to be displayed in some part of the CRUD
      *
+     * @param integer $crudId The CRUD id (list, edit, new)
+     *
      * @return array
      */
     public function getDisplayFields($crudId)
@@ -335,7 +387,7 @@ abstract class Generator extends AbstractData
         }
 
         $fields = array();
-        foreach($this->get($crudId)->display as $displayField ) {
+        foreach ($this->get($crudId)->display as $displayField) {
             $fields[$displayField] = $this->fields[$displayField];
         }
 
@@ -390,7 +442,8 @@ abstract class Generator extends AbstractData
     /**
      * Returns the Data Value
      *
-     * @param string $field The field to render
+     * @param string $fieldName The field to render
+     * @param object $data      The data to extract info
      *
      * @return string
      */
@@ -403,7 +456,7 @@ abstract class Generator extends AbstractData
         }
         if (is_array($value)) {
             $values = array();
-            foreach($value as $v) {
+            foreach ($value as $v) {
                 $values[] = (string) $v;
             }
             $value = implode(', ', $values);
@@ -413,6 +466,8 @@ abstract class Generator extends AbstractData
 
     /**
      * Return just the fields to be hidden in some part of the CRUD
+     *
+     * @param integer $crudId The CRUD id (list, edit, new)
      *
      * @return array
      */
@@ -425,7 +480,7 @@ abstract class Generator extends AbstractData
 
         $fieldNames = array();
 
-        foreach(array_keys($this->fields) as $fieldName ) {
+        foreach (array_keys($this->fields) as $fieldName) {
             if (!in_array($fieldName, $this->get($crudId)->display)) {
                 $fieldNames[] = $fieldName;
             }

@@ -6,6 +6,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Coregen\AdminGeneratorBundle\Generator\Generator;
 use Coregen\AdminGeneratorBundle\Form\FilterType;
 
+/**
+ * Main Generator Controller
+ *
+ * @package CoregenAdminGenerator
+ * @author  Rafael Goulart <rafaelgou@gmail.com>
+ */
 abstract class GeneratorController extends Controller
 {
     /**
@@ -30,32 +36,82 @@ abstract class GeneratorController extends Controller
      */
     protected $pager = null;
 
+    /**
+     * Configure generator and other stuffs
+     *
+     * @return void
+     */
     abstract protected function configure();
 
+    /**
+     * Index action
+     *
+     * @return View
+     */
     abstract public function indexAction();
 
+    /**
+     * Show action
+     *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
+     */
     abstract public function showAction($id);
 
+    /**
+     * New action
+     *
+     * @return View
+     */
     abstract public function newAction();
 
+    /**
+     * Create Action
+     *
+     * @return View
+     */
     abstract public function createAction();
 
+    /**
+     * Edit Action
+     *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
+     */
     abstract public function editAction($id);
 
+    /**
+     * Update Action
+     *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
+     */
     abstract public function updateAction($id);
 
+    /**
+     * Delete Action
+     *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
+     */
     abstract public function deleteAction($id);
 
-    protected function loadGenerator(Generator $generator)
-    {
-        $this->generator = $generator;
-        $this->pager = $this->get('coregen.orm.pager')
-                ->setGenerator($generator);
-
-    }
+    /**
+     * Load Generator
+     *
+     * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator A generator
+     *
+     * @return void
+     */
+    abstract public function loadGenerator(Generator $generator);
 
     /**
-     * Returns the Doctrine ORM/EntityManager or ODM/DocumentManager
+     * Return the Doctrine ORM/EntityManager or ODM/DocumentManager
+     *
      * @return Manager
      */
     protected function getManager()
@@ -64,7 +120,8 @@ abstract class GeneratorController extends Controller
     }
 
     /**
-     * Returns the Doctrine ORM/ODM Repository
+     * Return the Doctrine ORM/ODM Repository
+     *
      * @return Manager
      */
     protected function getRepository()
@@ -75,30 +132,31 @@ abstract class GeneratorController extends Controller
     /**
      * Renders a view
      *
-     * @param string $view        The view to find
-     * @param array  $parameters  Adicional parameters to the view
+     * @param string $view       The view to find
+     * @param array  $parameters Adicional parameters to the view
      *
      * @return Response A Response instance
      */
     public function renderView($view, array $parameters = array())
     {
         $parameters = array_merge($parameters,
-                array(
-                    'generator'      => $this->generator,
-                    )
-                );
+            array(
+                'generator'  => $this->generator,
+                )
+        );
         return parent::render($this->generator->coreTheme . $this->getView($view), $parameters);
     }
 
     /**
+     * Get the View by configuration
      *
-     * @param string $view
+     * @param string $view A internal view name
+     *
      * @return string
      */
     protected function getView($view)
     {
-        if (isset($this->views[$view]))
-        {
+        if (isset($this->views[$view])) {
             return $this->views[$view];
         } else {
             return $this->views['list'];
@@ -106,16 +164,26 @@ abstract class GeneratorController extends Controller
     }
 
     /**
-     * Returns a paged query, and sets variables for paging
+     * Return a paged query, and sets variables for paging
+     *
+     * @param array $query      An array with the query
+     * @param mixed $page       Current page or false
+     * @param mixed $maxPerPage Limit (max per page) or false
+     * @param mixed $sort       Current sort or false
+     *
      * @return Dynamic\MongoDBBundle\Core\DynamicPager
      */
-    protected function getPager($query=array(), $page=false, $max_per_page=false, $sort=false)
+    protected function getPager($query=array(), $page=false, $maxPerPage=false, $sort=false)
     {
         $this->pager->setCurrent($page ? $page : $this->getPage());
-        $this->pager->setLimit($max_per_page ? $max_per_page : $this->generator->list->max_per_page);
+        $this->pager->setLimit($maxPerPage ? $maxPerPage : $this->generator->list->max_per_page);
         $this->pager->setQuery($query ? $query : $this->getQuery());
+
+        $this->configureSort();
         if ($sort && is_array($sort)) {
             $this->pager->setSort($sort);
+        } elseif (count($this->getSort() !== 0))  {
+            $this->pager->setSort($this->getSort());
         } else {
             $this->pager->setSort($this->generator->list->sort);
         }
@@ -123,18 +191,9 @@ abstract class GeneratorController extends Controller
     }
 
     /**
-     * Returns current page
-     * @return Integer
-     */
-    protected function getPage()
-    {
-      return $this->getRequest()->getSession()->get($this->generator->route . '.page', 1);
-    }
-
-    /**
-     * Sets current page on session
+     * Set current page on session
      *
-     * @param integer $page
+     * @param integer $page Page number
      *
      * @return void
      */
@@ -143,26 +202,99 @@ abstract class GeneratorController extends Controller
         $this->getRequest()->getSession()->set($this->generator->route . '.page', $page);
     }
 
+    /**
+     * Return current page
+     *
+     * @return Integer
+     */
+    protected function getPage()
+    {
+      return $this->getRequest()->getSession()->get($this->generator->route . '.page', 1);
+    }
 
+    /**
+     * Set current sort on session
+     *
+     * @param string $fieldName The field name to sort
+     *
+     * @return void
+     */
+    protected function setSort($fieldName)
+    {
+        $sort = $this->getSort();
+        if (count($sort) === 0) {
+            $sortOrder = 'ASC';
+        } else {
+            if (current($sort) == 'ASC' and key($sort) == $fieldName) {
+                $sortOrder = 'DESC';
+            } else {
+                $sortOrder = 'ASC';
+            }
+        }
+        $this->getRequest()->getSession()->set($this->generator->route . '.sort', array($fieldName => $sortOrder));
+    }
+
+    /**
+     * Return current sort
+     *
+     * @return Integer
+     */
+    protected function getSort()
+    {
+      return $this->getRequest()->getSession()->get($this->generator->route . '.sort', array());
+    }
+
+    /**
+     * Configure current sort by request
+     *
+     * @return void
+     */
+    protected function configureSort()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+        $sort = $this->getRequest()->get('sort', false);
+        if ($sort) {
+            $this->setSort($sort);
+        }
+    }
+
+    /**
+     * Get query (for a while, just proxy for getFilter)
+     *
+     * @return array
+     */
     protected function getQuery()
     {
         return $this->getFilter();
     }
 
+    /**
+     * Get query (for a while, just proxy for getFilter)
+     *
+     * @param string $id Form id
+     *
+     * @return array
+     */
     protected function createDeleteForm($id)
     {
         return $this->createFormBuilder(array('id' => $id))
             ->add('id', 'hidden')
-            ->getForm()
-        ;
+            ->getForm();
     }
 
+    /**
+     * Configure current filter by request
+     *
+     * @return void
+     */
     protected function configureFilter()
     {
         // Configuring the Generator Controller
         $this->configure();
+
         $filtertype = $this->getRequest()->get('filtertype', false);
-        
+
         if ($filtertype) {
             $this->setPage(1);
             if (isset($filtertype['reset'])) {
@@ -171,8 +303,8 @@ abstract class GeneratorController extends Controller
                 $filter = array();
                 foreach ($this->getRequest()->get('filtertype', false) as $key => $value) {
                     if ($value != '') {
-                        $keyClean = str_replace('_from', '',$key);
-                        $keyClean = str_replace('_to', '',$keyClean);
+                        $keyClean = str_replace('_from', '', $key);
+                        $keyClean = str_replace('_to', '', $keyClean);
 
                         if ($this->generator->filter->fields[$keyClean]['type'] == 'daterange') {
                             $dateFormaterDefault = \IntlDateFormatter::create(
@@ -200,6 +332,11 @@ abstract class GeneratorController extends Controller
         }
     }
 
+    /**
+     * Get current filter
+     *
+     * @return array
+     */
     protected function getFilter()
     {
         // Configuring the Generator Controller
@@ -208,6 +345,11 @@ abstract class GeneratorController extends Controller
         return $this->getRequest()->getSession()->get($this->generator->route . '.filter', array());
     }
 
+    /**
+     * Get Filter Form data
+     *
+     * @return array
+     */
     protected function getFilterFormData()
     {
         if ($this->generator->filter->fields && is_array($this->generator->filter->fields)) {
@@ -240,9 +382,13 @@ abstract class GeneratorController extends Controller
             }
         }
         return $data;
-
     }
 
+    /**
+     * Create and return a generator filter form
+     *
+     * @return Coregen\AdminGeneratorBundle\Form\FilterType
+     */
     protected function createFilterForm()
     {
 
@@ -258,46 +404,46 @@ abstract class GeneratorController extends Controller
                 switch($field['type']) {
                     case 'daterange':
                         $form->add(
-                                $fieldName . '_from',
-                                'date',
-                                array_merge(
-                                    $field['options'],
-                                    array(
-                                        'required' => false,
-                                        'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
-                                        'format' => 'dd/MM/yyyy',//\IntlDateFormatter::MEDIUM,
-                                        'widget'   => 'single_text',
-                                        'attr'     => array('class'=>'date span2'),
-                                        'input'    => 'string'
-                                    ))
+                            $fieldName . '_from',
+                            'date',
+                            array_merge(
+                                $field['options'],
+                                array(
+                                    'required' => false,
+                                    'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
+                                    'format' => 'dd/MM/yyyy',//\IntlDateFormatter::MEDIUM,
+                                    'widget'   => 'single_text',
+                                    'attr'     => array('class'=>'date span2'),
+                                    'input'    => 'string'
+                                ))
                         );
                         $form->add(
-                                $fieldName . '_to',
-                                'date',
-                                array_merge(
-                                    $field['options'],
-                                    array(
-                                        'required' => false,
-                                        'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
-                                        'format' => \IntlDateFormatter::MEDIUM,
-                                        'widget' => 'single_text',
-                                        'attr'   => array('class'=>'date span2'),
-                                        'input'    => 'string'
-                                    ))
+                            $fieldName . '_to',
+                            'date',
+                            array_merge(
+                                $field['options'],
+                                array(
+                                    'required' => false,
+                                    'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
+                                    'format' => \IntlDateFormatter::MEDIUM,
+                                    'widget' => 'single_text',
+                                    'attr'   => array('class'=>'date span2'),
+                                    'input'    => 'string'
+                                ))
                         );
                         break;
                     case 'entity':
                     case 'text':
                     default:
                         $form->add(
-                                $fieldName,
-                                $field['type'],
-                                array_merge(
-                                    $field['options'],
-                                    array(
-                                        'required' => false,
-                                        'label' => $this->generator->filter->fields[$fieldName]['label'],
-                                    ))
+                            $fieldName,
+                            $field['type'],
+                            array_merge(
+                                $field['options'],
+                                array(
+                                    'required' => false,
+                                    'label' => $this->generator->filter->fields[$fieldName]['label'],
+                                ))
                         );
                         break;
                 }

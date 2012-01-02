@@ -5,10 +5,34 @@ namespace Coregen\AdminGeneratorBundle\ORM;
 use Coregen\AdminGeneratorBundle\Controller;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 
+/**
+ * ORM Generator Controller
+ *
+ * @package    CoregenAdminGenerator
+ * @subpackage ORM
+ * @author     Rafael Goulart <rafaelgou@gmail.com>
+ */
 abstract class GeneratorController extends Controller\GeneratorController
 {
-    //abstract public function configure();
+    /**
+     * Load Generator
+     *
+     * @param Coregen\AdminGeneratorBundle\Generator\Generator $generator A generator
+     *
+     * @return void
+     */
+    protected function loadGenerator(Generator $generator)
+    {
+        $this->generator = $generator;
+        $this->pager = $this->get('coregen.orm.pager')
+                ->setGenerator($generator);
+    }
 
+    /**
+     * Index action
+     *
+     * @return View
+     */
     public function indexAction()
     {
         // Configuring the Generator Controller
@@ -16,6 +40,9 @@ abstract class GeneratorController extends Controller\GeneratorController
 
         // Defining filters
         $this->configureFilter();
+
+        // Defining sort
+        $this->configureSort();
 
         // Defining actual page
         $this->setPage($this->getRequest()->get('page', $this->getPage()));
@@ -35,8 +62,11 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Finds and displays a Tarefa entity.
+     * Show action
      *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
      */
     public function showAction($id)
     {
@@ -60,8 +90,9 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Displays a form to create a new Tarefa entity.
+     * New action
      *
+     * @return View
      */
     public function newAction()
     {
@@ -81,8 +112,9 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Creates a new Tarefa entity.
+     * Create Action
      *
+     * @return View
      */
     public function createAction()
     {
@@ -122,8 +154,11 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Displays a form to edit an existing Tarefa entity.
+     * Edit Action
      *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
      */
     public function editAction($id)
     {
@@ -155,8 +190,11 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Edits an existing Tarefa entity.
+     * Update Action
      *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
      */
     public function updateAction($id)
     {
@@ -203,8 +241,11 @@ abstract class GeneratorController extends Controller\GeneratorController
     }
 
     /**
-     * Deletes a Tarefa entity.
+     * Delete Action
      *
+     * @param mixed $id Entity/Document Id
+     *
+     * @return View
      */
     public function deleteAction($id)
     {
@@ -231,9 +272,9 @@ abstract class GeneratorController extends Controller\GeneratorController
             return $this->redirect($this->generateUrl($this->generator->route));
         } else {
             $this->get('session')->setFlash(
-                    'error',
-                    'An error ocurred while deleting the item.'
-                    );
+                'error',
+                'An error ocurred while deleting the item.'
+            );
             return $this->redirect($this->generateUrl($this->generator->route));
         }
 
