@@ -4,11 +4,16 @@ namespace Coregen\AdminGeneratorBundle\Data;
 /**
  * List Data
  *
- * @package coregen
- * @subpackage data
+ * @package    Coregen
+ * @subpackage Data
  */
 class FilterData extends AbstractData
 {
+    /**
+     * Get Metadata for create Data Structured
+     *
+     * @return array
+     */
     protected function getMetadata()
     {
         return array(

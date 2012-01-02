@@ -4,11 +4,16 @@ namespace Coregen\AdminGeneratorBundle\Data;
 /**
  * List Data
  *
- * @package coregen
- * @subpackage data
+ * @package    Coregen
+ * @subpackage Data
  */
 class ListData extends AbstractData
 {
+    /**
+     * Get Metadata for create Data Structured
+     *
+     * @return array
+     */
     protected function getMetadata()
     {
         return array(
@@ -43,6 +48,12 @@ class ListData extends AbstractData
                 'type'     => 'string',
                 ),
             'sort' => array(
+                'required' => true,
+                'null'     => true,
+                'length'   => null,
+                'type'     => 'array',
+                ),
+            'sort_fields' => array(
                 'required' => true,
                 'null'     => true,
                 'length'   => null,

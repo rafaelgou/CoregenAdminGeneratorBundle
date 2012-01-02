@@ -14,8 +14,8 @@ use \ArrayIterator;
 /**
  * Basic Data Storage
  *
- * @package coregen
- * @subpackage data
+ * @package    Coregen
+ * @subpackage Data
  */
 abstract class AbstractData extends ArrayIterator
 {
@@ -255,15 +255,14 @@ abstract class AbstractData extends ArrayIterator
     /**
      * Generic Getter
      *
-     * @param string $name The attribute name
+     * @param string $fieldName The attribute name
      *
      * @return mixed
      */
     public function get($fieldName)
     {
         $method = 'get' . ucfirst($fieldName);
-        if (method_exists($this, $method))
-        {
+        if (method_exists($this, $method)) {
             return $this->$method($fieldName);
         } else {
             if ($this->offsetExists($fieldName)) {
@@ -277,16 +276,15 @@ abstract class AbstractData extends ArrayIterator
     /**
      * Generic Setter
      *
-     * @param string $name The attribute name
-     * @param mixed $value The value
+     * @param string $fieldName The attribute name
+     * @param mixed  $value     The value
      *
      * @return void
      */
     public function set($fieldName, $value)
     {
         $method = 'set' . ucfirst($fieldName);
-        if (method_exists($this, $method))
-        {
+        if (method_exists($this, $method)) {
             $this->$method($fieldName, $value);
         } else {
             $this->validateAndStore($fieldName, $value);
@@ -313,8 +311,8 @@ abstract class AbstractData extends ArrayIterator
     /**
      * Generic Magic Setter
      *
-     * @param string $name The attribute name
-     * @param mixed $value The value
+     * @param string $name  The attribute name
+     * @param mixed  $value The value
      *
      * @return AbstractData
      */
