@@ -144,7 +144,29 @@ abstract class GeneratorController extends Controller
                 'generator'  => $this->generator,
                 )
         );
-        return parent::render($this->generator->coreTheme . $this->getView($view), $parameters);
+
+        return parent::render($this->getViewToRender($view), $parameters);
+    }
+
+    /**
+     * Get the View To Render
+     *
+     * Permits overriding default views by
+     * using full path (not begging with ":")
+     *
+     * @param string $view A internal view name
+     *
+     * @return string
+     */
+    protected function getViewToRender($view)
+    {
+        $view = $this->getView($view);
+
+        if (substr($view, 0, 1) == ':') {
+            return $this->generator->coreTheme . $view;
+        } else {
+            return $view;
+        }
     }
 
     /**
