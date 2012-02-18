@@ -301,6 +301,9 @@ class Pager
                                 $this->queryBuilder->andWhere(
                                     $this->queryBuilder->expr()->$compare("e.{$fieldName} ", "?{$counter}")
                                 );
+                                if ($compare == 'like') {
+                                    $this->query[$fieldName] = "%{$this->query[$fieldName]}%";
+                                }
                                 $this->queryBuilder->setParameter($counter, $this->query[$fieldName]);
                             }
                             break;
