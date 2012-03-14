@@ -281,6 +281,72 @@ abstract class GeneratorController extends Controller\GeneratorController
 
     }
 
+    /**
+     * Batch Delete
+     *
+     * @return View
+     */
+    public function batchActionsAction()
+    {
+        // Configuring the Generator Controller
+        $this->configure();
 
+        $method = 'batch' . ucfirst($this->getRequest()->get('batchSelect', 'none'));
+        if (method_exists($this, $method)) {
+            $ids = array_keys($this->getRequest()->get('selected_objects', array()));
+            return $this->$method($ids);
+        } else {
+            $message = $this->get('translator')->trans('Method "%s" not found in class "%s".');
+            $message = sprintf($message, $method, get_class($this));
+            $this->get('session')->setFlash('error',$message);
+            return $this->redirect($this->generateUrl($this->generator->route));
+        }
+    }
+
+    /**
+     * Batch Delete
+     *
+     * @param array $ids An array of ids to batch process
+     * @return View
+     */
+    protected function batchDelete($ids)
+    {
+        // Configuring the Generator Controller
+        $this->configure();
+
+        if (count($ids)) {
+
+            try {
+                $manager = $this->getDoctrine()->getEntityManager();
+                $qb = $manager->createQueryBuilder($this->generator->class, 'e');
+                $qb->delete($this->generator->class, 'e')
+                    ->andWhere($qb->expr()->in('e.id', $ids))
+                    ->getQuery()->execute();
+            } catch (Exception $exc) {
+
+                //echo $exc->getTraceAsString();
+                $this->get('session')->setFlash(
+                        'error',
+                        'An error ocurred while executing the batch action.'
+                        . '<br/>' . $exc->getTraceAsString()
+                        );
+                return $this->redirect($this->generateUrl($this->generator->route));
+            }
+
+            $batch_actions = $this->generator->list->batch_actions;
+            $action = $batch_actions['delete'];
+
+            $message = $this->get('translator')->trans($action['success_message']);
+            $message = sprintf($message, count($ids));
+
+            $this->get('session')->setFlash('success', $message);
+            return $this->redirect($this->generateUrl($this->generator->route));
+
+        } else {
+            $this->get('session')->setFlash('error','No itens selected to execute the batch action.');
+            return $this->redirect($this->generateUrl($this->generator->route));
+        }
+
+    }
 
 }

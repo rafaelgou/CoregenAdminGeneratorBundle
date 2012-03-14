@@ -110,6 +110,13 @@ abstract class GeneratorController extends Controller
     abstract public function loadGenerator($generator);
 
     /**
+     * batchActions Action
+     *
+     * @return View
+     */
+    abstract public function batchActionsAction();
+
+    /**
      * Return the Doctrine ORM/EntityManager or ODM/DocumentManager
      *
      * @return Manager
