@@ -248,12 +248,11 @@ abstract class Generator extends AbstractData
 
         if (!isset($list['batch_actions'])) {
             $list['batch_actions'] = array(
-                'delete' => true
+                'delete' => array(
+                    'label'  => 'Delete',
+                    'success_message' => '%s item(s) has been excluded successfully.'
+                ),
             );
-        } else {
-            if (!isset($list['batch_actions']['delete'])) {
-                $list['batch_actions']['delete'] = true;
-            }
         }
 
         $this->validateAndStore('list', $list);
@@ -407,6 +406,21 @@ abstract class Generator extends AbstractData
     public function getListDisplayFields()
     {
         return $this->getDisplayFields('list');
+    }
+
+    /**
+     * Return the Batch Actions from the List
+     *
+     * @return mixed
+     */
+    public function getListBatchActions()
+    {
+        $list = $this->get('list');
+        if (count($list->batch_actions)) {
+            return $list->batch_actions;
+        } else {
+            return false;
+        }
     }
 
     /**
