@@ -404,6 +404,12 @@ abstract class GeneratorController extends Controller
                             unset($data[$fieldName]);
                         }
                         break;
+
+                    case 'checkbox':
+                        if (isset($data[$fieldName])) {
+                            $data[$fieldName] = $data[$fieldName] == '1' ? true : false;
+                        }
+                        break;
                     case 'daterange':
                     case 'text':
                     default:

@@ -293,6 +293,16 @@ class Pager
                             }
                             break;
 
+                        case 'checkbox':
+                            if (isset($this->query[$fieldName]) && $this->query[$fieldName] == true) {
+                                $counter++;
+                                $this->queryBuilder->andWhere(
+                                    $this->queryBuilder->expr()->eq("e.{$fieldName} ", "?{$counter}")
+                                );
+                                $this->queryBuilder->setParameter($counter, true);
+                            }
+                            break;
+
                         case 'text':
                         default:
                             if (isset($this->query[$fieldName])) {
