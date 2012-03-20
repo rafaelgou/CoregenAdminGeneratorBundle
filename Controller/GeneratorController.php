@@ -211,11 +211,12 @@ abstract class GeneratorController extends Controller
         $this->configureSort();
         if ($sort && is_array($sort)) {
             $this->pager->setSort($sort);
-        } elseif (count($this->getSort() !== 0))  {
+        } elseif (count($this->getSort()) !== 0)  {
             $this->pager->setSort($this->getSort());
         } else {
             $this->pager->setSort($this->generator->list->sort);
         }
+
         return $this->pager;
     }
 
