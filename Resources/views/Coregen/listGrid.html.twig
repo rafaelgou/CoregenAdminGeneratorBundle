@@ -1,174 +1,141 @@
-{% extends theme|default('CoregenAdminGeneratorBundle') ~ '::layout.html.twig') %}
-
-{% block title %}Grid List - Bootstrap Twiter Theme{% endblock %}
+{% extends generator.layoutTheme |default('ThemeBootstrapBundle')  ~ '::layout.html.twig' %}
+{% block title %}{{ generator.list.title | trans({}, generator.transDomain) }} {% endblock %}
 
 {% block content %}
 
     <div class="page-header">
-        <h1>Listing <small>or <a href="{{ path('ThemeBootstrapBundle_form') }}">add new</a></small></h1>
-    </div>
-
-    <div id="no_records" class="alert-message warning">
-        <p>
-            {% trans %}No records found. You can filter again or{% endtrans %}
-        </p>
-        <p>
-            <a href=""><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
-        </p>
+        <h1>
+            {{ generator.list.title | trans({}, generator.transDomain) }}
+            <small>
+{% if pager.count == 0  %}
+                    ({% trans %}no records{% endtrans %})
+{% elseif   pager.count == 1  %}
+                    ({% trans %}1 record{% endtrans %})
+{% else %}
+                    ({{ pager.count }} {% trans %}records{% endtrans %})
+{% endif %}
+                {% trans %}or{% endtrans %} <a href="{{ path(generator.route ~ '_new') }}">{% trans %}add new{% endtrans %}</a>
+            </small>
+        </h1>
     </div>
 
     <div class="row">
 
+{% if pager.count == 0  %}
+
+        <div class="span8 columns">
+            <div id="no_records" class="alert span7">
+                <p>
+                    {% trans %}No records found. You can filter again or{% endtrans %}
+                    <a href="{{ path(generator.route ~ '_new') }}"><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
+                </p>
+            </div>
+        </div>
+
+    {% if filter_form %}
+    {% include 'CoregenThemeBootstrapBundle:Coregen:_filterForm.html.twig' %}
+    {% endif %}
+
+{% else %}
+
+{% if generator.getListBatchActions() %}
+        <form action="{{ path(generator.route ~ '_batch_actions') }}" id="batch_actions_fom" method="post" class="form-inline">
+{% endif %}
+
         <!-- List -->
-        <div class="span12 columns">
+        <div class="span8 columns">
             <div>
-                <table class="zebra-striped" id="sortTableExample">
+                <table class="table table-bordered table-striped" id="sortTableExample">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="checkall"/></th>
-                            <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Language</th>
-                            <th>Birthday</th>
-                            <th>Actions</th>
+                        {% if generator.getListBatchActions %}
+                            <th>
+                                <input type="checkbox" id="checkall" onclick="checkAllCheckboxes(this, 'selected_objects' )" />
+                            </th>
+                        {% endif %}
+                        {% for field in generator.listDisplayFields %}
+                            <th>{{ field.label | trans({}, generator.transDomain)  }}</th>
+                        {% endfor %}
+                        {% if generator.list.object_actions %}
+                            <th>{% trans %}Actions{% endtrans %}</th>
+                        {% endif %}
                         </tr>
                    </thead>
                     <tbody>
+                        {% for record in pager.getResults %}
                         <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>1</td>
-                            <td>Your</td>
-                            <td>One</td>
-                            <td>English</td>
-                            <td>10/07/2011</td>
+                            {% if generator.getListBatchActions %}
                             <td>
-                                <a href="">View</a>
-                                <a href="">Edit</a>
-                                <a href="">Delete</a>
+                                <input type="checkbox" id="selected_objects_{{ generator.renderField('id', record) }}" name="selected_objects[{{ generator.renderField('id', record) }}]" value="1"/>
                             </td>
+                            {% endif %}
+                            {% for fieldName, field in generator.listDisplayFields %}
+
+                                {% if field.list_partial is defined %}
+                                    <td>{% include field.list_partial %}</td>
+                                {% elseif field.collection is defined and  field.collection %}
+                                    {% set data = generator.renderField(fieldName, record) %}
+                                    <td>
+                                        <ul>
+                                        {% for item in data %}
+                                            <li>{{ item }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    </td>
+                                {% elseif field.date_format is defined %}
+                                    {% set data = generator.renderField(fieldName, record) %}
+                                    {% if data %}
+                                        <td>{{ generator.renderField(fieldName, record) | date(field.date_format) }}</td>
+                                    {% else %}
+                                        <td>&nbsp;</td>
+                                    {% endif %}
+                                {% else %}
+                                    {% set data = generator.renderField(fieldName, record) %}
+                                    {% if field.boolean_format is defined %}
+                                        {% if data %}
+                                            {% set data = field.boolean_format[1] %}
+                                        {% else %}
+                                            {% set data = field.boolean_format[0] %}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if field.raw is defined and  field.raw %}
+                                        {% set data = data | raw %}
+                                    {% endif %}
+                                    {% if field.trans is defined and field.trans%}
+                                        {% set data = data | trans({}, generator.transDomain) %}
+                                    {% endif %}
+                                    <td>{{ data }}</td>
+                                {% endif %}
+                            {% endfor %}
+{% include 'CoregenThemeBootstrapBundle:Coregen:_objectActions.html.twig' %}
                         </tr>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>2</td>
-                            <td>Joe</td>
-                            <td>Sixpack</td>
-                            <td>English</td>
-                            <td>11/28/2008</td>
-                            <td>
-                                <a href="">View</a>
-                                <a href="">Edit</a>
-                                <a href="">Delete</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>3</td>
-                            <td>Stu</td>
-                            <td>Dent</td>
-                            <td>Portuguese</td>
-                            <td>03/14/2003</td>
-                            <td>
-                                <a href="">View</a>
-                                <a href="">Edit</a>
-                                <a href="">Delete</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>4</td>
-                            <td>John</td>
-                            <td>Doe</td>
-                            <td>Portuguese</td>
-                            <td>09/01/2000</td>
-                            <td>
-                                <a href="">View</a>
-                                <a href="">Edit</a>
-                                <a href="">Delete</a>
-                            </td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
 
-            <div class="row">
+            <!-- Hidden form to submit Deletion -->
+            {{ form_widget(delete_form) }}
 
-                <div class="span5 columns batch_action">
-                    Actions
-                    <select name="batchSelect" id="batchSelect" class="small">
-                        <option></option>
-                        <option>Delete</option>
-                    </select>
-                    <button type="submit" class="btn primary">Add New</button>
-                </div>
+{% if generator.getListBatchActions %}
+{% block batchActions %}{% endblock %}
+{% include 'CoregenThemeBootstrapBundle:Coregen:_batchActions.html.twig' %}
+{% endif %}
 
-                <div class="span7 columns last pagination">
-                    <ul>
-                        <li class="prev disabled"><a href="#">&larr; Previous</a></li>
-                        <li class="active"><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li class="next"><a href="#">Next &rarr;</a></li>
-                    </ul>
-                </div>
-
-            </div>
+{% block paginator %}{% endblock %}
+{% include 'CoregenThemeBootstrapBundle:Coregen:_paginator.html.twig' %}
 
         </div>
 
-        <!-- Filter -->
-        <div class="span4 columns">
-
-            <form action="" class="form-stacked">
-                <fieldset>
-                    <legend>Filter</legend>
-
-                    <div class="clearfix">
-                        <label for="firstname">First Name</label>
-                        <div class="input">
-                            <input class="medium" id="firstname" name="firstname" type="text" />
-                        </div>
-                    </div><!-- /clearfix -->
-
-                    <div class="clearfix">
-                        <label for="latstname">Last Name</label>
-                        <div class="input">
-                            <input class="medium" id="lastname" name="lastname" type="text" />
-                        </div>
-                    </div><!-- /clearfix -->
-
-                    <div class="clearfix">
-                        <label for="language">Language</label>
-                        <div class="input">
-                            <select name="language" id="language" class="medium">
-                                <option></option>
-                                <option>English</option>
-                                <option>Portugues</option>
-                            </select>
-                        </div>
-                    </div><!-- /clearfix -->
-
-                    <div class="clearfix">
-                        <label for="birthday">Birthday</label>
-                        <div class="input">
-                            from<br/>
-                            <input class="small date" id="birthday_to" name="birthday_to" type="text" /><br/>
-                            to<br/>
-                            <input class="small date" id="birthday_from" name="birthday_from" type="text" />
-                        </div>
-                    </div><!-- /clearfix -->
-
-                </fieldset>
-                <div class="actions">
-                <button type="submit" class="btn primary">Filter</button>&nbsp;<button type="reset" class="btn">Reset</button>
-                </div>
-            </form>
+{% if generator.getListBatchActions %}
+        </form>
+{% endif %}
 
 
-        </div>
+{% if filter_form %}
+{% include 'CoregenThemeBootstrapBundle:Coregen:_filterForm.html.twig' %}
+{% endif %}
 
     </div>
-
+{% endif %}
 {% endblock %}

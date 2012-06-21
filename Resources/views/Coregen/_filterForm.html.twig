@@ -1,0 +1,41 @@
+{% form_theme filter_form 'ThemeBootstrapBundle:Form:form_div_layout.html.twig' %}
+{% block filterForm %}
+
+        <!-- Filter -->
+        <div class="span3 well">
+
+            <form action="{{ path(generator.route) }}" class="form-stacked" method="get">
+                <fieldset>
+                    <legend>{{ generator.filter.title | trans({}, generator.transDomain) }}</legend>
+
+                    {% for fieldName, field in generator.filter.fields %}
+                    <div class="control-group">
+                        {% if field.type == 'daterange' %}
+                            <label class="control-label">{{ field.label | trans({}, generator.transDomain) }}</label>
+                            <div class="controls">
+                                <div class="input-prepend" style="float:left;">
+                                    {% trans %}de{% endtrans %}<br/>
+                                    <span class="add-on"><i class="icon-calendar"></i></span>{{ form_widget(filter_form[fieldName ~ '_from']) }}
+                                </div>
+                                <div class="input-prepend" style="float:left;">
+                                    {% trans %}to{% endtrans %}<br/>
+                                    <span class="add-on"><i class="icon-calendar"></i></span>{{ form_widget(filter_form[fieldName ~ '_to']) }}
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ form_label(filter_form[fieldName], field.label) }}
+                        <div class="controls">
+                            {{ form_widget(filter_form[fieldName]) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </fieldset>
+                <div class="actions">
+                    <button type="submit" class="btn primary">{% trans %}Filter{% endtrans %}</button>&nbsp;
+                    <a class="btn" href="{{ path(generator.route) }}?filtertype[reset]=1">{% trans %}Reset{% endtrans %}</a>
+                </div>
+            </form>
+
+        </div>
+{% endblock %}

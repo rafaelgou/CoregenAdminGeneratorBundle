@@ -10,8 +10,6 @@ services:
     coregen.orm.pager:
         class:     %coregen_generator_orm_pager.class%
         arguments: [@doctrine]
-#        calls:
-#            - [ setGenerator, [ @?coregen.generator ] ]
     coregen.odm.pager:
         class:     %coregen_generator_odm_pager.class%
         arguments: [@doctrine, @coregen.generator]

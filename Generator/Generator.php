@@ -504,5 +504,11 @@ abstract class Generator extends AbstractData
         return $fieldNames;
     }
 
-
+    /**
+     * Return the domain for translate messages
+     */
+    public function getTransDomain()
+    {
+        return str_replace(':', '',$this->get('model'));
+    }
 }

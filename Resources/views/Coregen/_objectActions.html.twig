@@ -1,0 +1,22 @@
+                            {% if generator.list.object_actions %}
+                            <td>
+                                {% for key, action in generator.list.object_actions %}
+                                    {% if key == 'view' and action == true %}
+                                <a href="{{ path(generator.route ~ '_show', { 'id': generator.renderField('id', record)}) }}">
+                                    {% trans %}View{% endtrans %}
+                                </a>
+                                    {% elseif key == 'edit' and action == true %}
+                                <a href="{{ path(generator.route ~ '_edit', { 'id': generator.renderField('id', record)}) }}">
+                                    {% trans %}Edit{% endtrans %}
+                                </a>
+                                    {% elseif key == 'delete' and action == true %}
+                                <a href="{{ path(generator.route ~ '_delete', { 'id': generator.renderField('id', record)}) }}"
+                                   onclick="javascript:deleteConfirm('{% trans %}Are you sure you want to delete{% endtrans %}:<br/>{{ record }} ', this, 'form[_token]', $('#form__token').val());return false;">
+                                    {% trans %}Delete{% endtrans %}
+                                </a>
+                                    {% else %}
+                                        {# TODO #}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% endif %}

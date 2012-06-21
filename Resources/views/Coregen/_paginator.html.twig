@@ -1,0 +1,28 @@
+{% block paginator %}
+
+{% if pager.haveToPaginate %}
+
+                <div class="span4 columns last pagination">
+                    <ul>
+    {% if pager.isFirstPage %}
+                        <li class="prev disabled" title="{% trans %}First Page{% endtrans %}"><a href="#">&lArr;</a></li>
+                        <li class="prev disabled" title="{% trans %}Previous Page{% endtrans %}"><a href="#">&larr;</a></li>
+    {% else %}
+                        <li class="prev" title="{% trans %}First Page{% endtrans %}"><a href="{{ path(generator.route, {'page': 1}) }}">&lArr;</a></li>
+                        <li class="prev" title="{% trans %}Last Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.previousPage}) }}">&larr;</a></li>
+    {% endif %}
+                        {% for page in pager.rangeToPaginate %}
+                        <li class="{% if pager.currentPage == page %}active{% endif %}"><a href="{{ path(generator.route, {'page': page}) }}">{{ page }}</a></li>
+                        {% endfor %}
+    {% if pager.isLastPage %}
+                        <li class="next disabled" title="{% trans %}Next Page{% endtrans %}"><a href="#">&rarr;</a></li>
+                        <li class="next disabled" title="{% trans %}Last Page{% endtrans %}"><a href="#">&rArr;</a></li>
+    {% else %}
+                        <li class="next" title="{% trans %}Next Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.nextPage}) }}">&rarr;</a></li>
+                        <li class="next" title="{% trans %}Last Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.lastPage}) }}">&rArr;</a></li>
+    {% endif %}
+                    </ul>
+                </div>
+{% endif %}
+
+{% endblock %}

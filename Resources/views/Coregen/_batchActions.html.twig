@@ -1,0 +1,14 @@
+{% block batchActions %}
+                <div class="span4 columns batch_action">
+                    <form action="" method="post">
+                        {% trans %}Actions{% endtrans %}
+                        <select name="batchSelect" id="batchSelect" class="small">
+                            <option></option>
+                        {% for name, action in generator.getListBatchActions %}
+                            <option value="{{ name }}">{{ action.label | trans({}, generator.transDomain) }}</option>
+                        {% endfor %}
+                            </select>
+                        <button class="btn" type="submit">{% trans %}go{% endtrans %}</button>
+                    </form>
+                </div>
+{% endblock %}
