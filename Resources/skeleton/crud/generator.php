@@ -30,9 +30,8 @@ class {{ entity }} extends Generator
             {%- endfor %}
 
             ),
-            # grid or stacked, default grid
             'layout'          => 'grid',
-            'stackedTemplate' => "<h3>\{\{ record  \}\}</h3><p class=\"details_fixed\">More details</strong></p>",
+            'stackedTemplate' => "<h3>{{ '{{' }} record  {{ '}}' }}</h3><p class=\"details_fixed\">More details</strong></p>",
             'sort'            => array(),
             'max_per_page'    => 20,
             'object_actions'  => array(),
@@ -77,10 +76,18 @@ class {{ entity }} extends Generator
 
         $show = array(
             'title'   => 'Show {{ entity }}',
+            'display'         => array(
+            {%- for field in fields %}
+
+                '{{ field }}',
+
+            {%- endfor %}
+
+            ),
         );
 
         $filter = array(
-            'title'   => 'Filter',
+            'title'   => 'Filter {{ entity }}',
             'fields' => array(
             {%- for field in fields %}
 
@@ -98,8 +105,8 @@ class {{ entity }} extends Generator
         $this
             ->setClass('{{ namespace }}\Entity\{{ entity }}')
             ->setModel('{{ model_name }}')
-            ->setCoreTheme('CoregenThemeBootstrapBundle')
-            ->setLayoutTheme('ThemeBootstrapBundle')
+            ->setCoreTheme('CoregenAdminGeneratorBundle')
+            ->setLayoutTheme('CoregenAdminGeneratorBundle')
             ->setRoute('{{ route_name }}')
             ->setActions($actions)
             ->setList($list)

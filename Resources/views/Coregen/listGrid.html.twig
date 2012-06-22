@@ -1,9 +1,8 @@
-{% extends generator.layoutTheme |default('ThemeBootstrapBundle')  ~ '::layout.html.twig' %}
+{% extends generator.layoutTheme |default('CoregenAdminGeneratorBundle')  ~ '::layout.html.twig' %}
 {% block title %}{{ generator.list.title | trans({}, generator.transDomain) }} {% endblock %}
 
 {% block content %}
 
-    <div class="page-header">
         <h1>
             {{ generator.list.title | trans({}, generator.transDomain) }}
             <small>
@@ -17,23 +16,18 @@
                 {% trans %}or{% endtrans %} <a href="{{ path(generator.route ~ '_new') }}">{% trans %}add new{% endtrans %}</a>
             </small>
         </h1>
-    </div>
-
-    <div class="row">
 
 {% if pager.count == 0  %}
 
-        <div class="span8 columns">
-            <div id="no_records" class="alert span7">
-                <p>
-                    {% trans %}No records found. You can filter again or{% endtrans %}
-                    <a href="{{ path(generator.route ~ '_new') }}"><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
-                </p>
-            </div>
+        <div id="no_records">
+            <p>
+                {% trans %}No records found. You can filter again or{% endtrans %}
+                <a href="{{ path(generator.route ~ '_new') }}"><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
+            </p>
         </div>
 
     {% if filter_form %}
-    {% include 'CoregenThemeBootstrapBundle:Coregen:_filterForm.html.twig' %}
+    {% include 'CoregenAdminGeneratorBundle:Coregen:_filterForm.html.twig' %}
     {% endif %}
 
 {% else %}
@@ -43,87 +37,85 @@
 {% endif %}
 
         <!-- List -->
-        <div class="span8 columns">
-            <div>
-                <table class="table table-bordered table-striped" id="sortTableExample">
-                    <thead>
-                        <tr>
+        <div id="main_data">
+            <table>
+                <thead>
+                    <tr>
+                    {% if generator.getListBatchActions %}
+                        <th>
+                            <input type="checkbox" id="checkall" onclick="checkAllCheckboxes(this, 'selected_objects' )" />
+                        </th>
+                    {% endif %}
+                    {% for field in generator.listDisplayFields %}
+                        <th>{{ field.label | trans({}, generator.transDomain)  }}</th>
+                    {% endfor %}
+                    {% if generator.list.object_actions %}
+                        <th>{% trans %}Actions{% endtrans %}</th>
+                    {% endif %}
+                    </tr>
+               </thead>
+                <tbody>
+                    {% for record in pager.getResults %}
+                    <tr>
                         {% if generator.getListBatchActions %}
-                            <th>
-                                <input type="checkbox" id="checkall" onclick="checkAllCheckboxes(this, 'selected_objects' )" />
-                            </th>
+                        <td>
+                            <input type="checkbox" id="selected_objects_{{ generator.renderField('id', record) }}" name="selected_objects[{{ generator.renderField('id', record) }}]" value="1"/>
+                        </td>
                         {% endif %}
-                        {% for field in generator.listDisplayFields %}
-                            <th>{{ field.label | trans({}, generator.transDomain)  }}</th>
-                        {% endfor %}
-                        {% if generator.list.object_actions %}
-                            <th>{% trans %}Actions{% endtrans %}</th>
-                        {% endif %}
-                        </tr>
-                   </thead>
-                    <tbody>
-                        {% for record in pager.getResults %}
-                        <tr>
-                            {% if generator.getListBatchActions %}
-                            <td>
-                                <input type="checkbox" id="selected_objects_{{ generator.renderField('id', record) }}" name="selected_objects[{{ generator.renderField('id', record) }}]" value="1"/>
-                            </td>
-                            {% endif %}
-                            {% for fieldName, field in generator.listDisplayFields %}
+                        {% for fieldName, field in generator.listDisplayFields %}
 
-                                {% if field.list_partial is defined %}
-                                    <td>{% include field.list_partial %}</td>
-                                {% elseif field.collection is defined and  field.collection %}
-                                    {% set data = generator.renderField(fieldName, record) %}
-                                    <td>
-                                        <ul>
-                                        {% for item in data %}
-                                            <li>{{ item }}</li>
-                                        {% endfor %}
-                                        </ul>
-                                    </td>
-                                {% elseif field.date_format is defined %}
-                                    {% set data = generator.renderField(fieldName, record) %}
-                                    {% if data %}
-                                        <td>{{ generator.renderField(fieldName, record) | date(field.date_format) }}</td>
-                                    {% else %}
-                                        <td>&nbsp;</td>
-                                    {% endif %}
+                            {% if field.list_partial is defined %}
+                                <td>{% include field.list_partial %}</td>
+                            {% elseif field.collection is defined and  field.collection %}
+                                {% set data = generator.renderField(fieldName, record) %}
+                                <td>
+                                    <ul>
+                                    {% for item in data %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                            {% elseif field.date_format is defined %}
+                                {% set data = generator.renderField(fieldName, record) %}
+                                {% if data %}
+                                    <td>{{ generator.renderField(fieldName, record) | date(field.date_format) }}</td>
                                 {% else %}
-                                    {% set data = generator.renderField(fieldName, record) %}
-                                    {% if field.boolean_format is defined %}
-                                        {% if data %}
-                                            {% set data = field.boolean_format[1] %}
-                                        {% else %}
-                                            {% set data = field.boolean_format[0] %}
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if field.raw is defined and  field.raw %}
-                                        {% set data = data | raw %}
-                                    {% endif %}
-                                    {% if field.trans is defined and field.trans%}
-                                        {% set data = data | trans({}, generator.transDomain) %}
-                                    {% endif %}
-                                    <td>{{ data }}</td>
+                                    <td>&nbsp;</td>
                                 {% endif %}
-                            {% endfor %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_objectActions.html.twig' %}
-                        </tr>
+                            {% else %}
+                                {% set data = generator.renderField(fieldName, record) %}
+                                {% if field.boolean_format is defined %}
+                                    {% if data %}
+                                        {% set data = field.boolean_format[1] %}
+                                    {% else %}
+                                        {% set data = field.boolean_format[0] %}
+                                    {% endif %}
+                                {% endif %}
+                                {% if field.raw is defined and  field.raw %}
+                                    {% set data = data | raw %}
+                                {% endif %}
+                                {% if field.trans is defined and field.trans%}
+                                    {% set data = data | trans({}, generator.transDomain) %}
+                                {% endif %}
+                                <td>{{ data }}</td>
+                            {% endif %}
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% include 'CoregenAdminGeneratorBundle:Coregen:_objectActions.html.twig' %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
             <!-- Hidden form to submit Deletion -->
             {{ form_widget(delete_form) }}
 
 {% if generator.getListBatchActions %}
 {% block batchActions %}{% endblock %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_batchActions.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_batchActions.html.twig' %}
 {% endif %}
 
 {% block paginator %}{% endblock %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_paginator.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_paginator.html.twig' %}
 
         </div>
 
@@ -133,9 +125,8 @@
 
 
 {% if filter_form %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_filterForm.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_filterForm.html.twig' %}
 {% endif %}
-
-    </div>
+        <div class="clear">&nbsp;</div>
 {% endif %}
 {% endblock %}

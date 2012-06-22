@@ -41,6 +41,12 @@ abstract class Generator extends AbstractData
     );
 
     /**
+     * Twig
+     * @var \Twig_Environment
+     */
+    protected $twig = null;
+
+    /**
      * Configure
      *
      * @return void
@@ -275,7 +281,7 @@ abstract class Generator extends AbstractData
                 $newFields[$name]['label'] = ucfirst($field);
             }
             if (!isset($field['size'])) {
-                $newFields[$name]['size'] = 'medium';
+                $newFields[$name]['size'] = '';
             }
             if (!isset($field['class'])) {
                 $newFields[$name]['class'] = '';
@@ -511,4 +517,26 @@ abstract class Generator extends AbstractData
     {
         return str_replace(':', '',$this->get('model'));
     }
+
+    /**
+     * Return the Batch Actions from the List
+     *
+     * @param $record The record
+     *
+     * @return mixed
+     */
+    public function getListStackedTemplate($record)
+    {
+        $list = $this->get('list');
+
+        if (null === $this->twig) {
+            $loader = new \Twig_Loader_String();
+            $this->twig = new \Twig_Environment($loader, array('debug' => false));
+        }
+
+        $template = $this->twig->loadTemplate($list->stackedTemplate);
+        return $template->render(array('record' => $record));
+    }
+
+
 }

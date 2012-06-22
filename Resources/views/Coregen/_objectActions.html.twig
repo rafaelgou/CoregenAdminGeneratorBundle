@@ -11,7 +11,7 @@
                                 </a>
                                     {% elseif key == 'delete' and action == true %}
                                 <a href="{{ path(generator.route ~ '_delete', { 'id': generator.renderField('id', record)}) }}"
-                                   onclick="javascript:deleteConfirm('{% trans %}Are you sure you want to delete{% endtrans %}:<br/>{{ record }} ', this, 'form[_token]', $('#form__token').val());return false;">
+                                   onclick="javascript:deleteConfirm('{% trans %}Are you sure you want to delete{% endtrans %}:\n{{ record }} ', this, 'form[_token]', document.getElementById('form__token').value);return false;">
                                     {% trans %}Delete{% endtrans %}
                                 </a>
                                     {% else %}

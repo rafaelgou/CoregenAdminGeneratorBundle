@@ -1,21 +1,19 @@
-{% extends generator.layoutTheme |default('ThemeBootstrapBundle')  ~ '::layout.html.twig' %}
+{% extends generator.layoutTheme |default('CoregenAdminGeneratorBundle')  ~ '::layout.html.twig' %}
 {% block title %}{{ generator.edit.title | trans({}, generator.transDomain) }} {% endblock %}
 
 {% block content %}
 
-    <div class="page-header">
-        <h1>{{ generator.edit.title | trans({}, generator.transDomain) }}
-            <small>
-                {% trans %}or{% endtrans %} <a href="{{ path(generator.route) }}">{% trans %}go back to list{% endtrans %}</a>
-            </small>
-        </h1>
-    </div>
+    <h1>{{ generator.edit.title | trans({}, generator.transDomain) }}
+        <small>
+            {% trans %}or{% endtrans %} <a href="{{ path(generator.route) }}">{% trans %}go back to list{% endtrans %}</a>
+        </small>
+    </h1>
 
     <form action="{{ path(generator.route ~ '_update', { 'id': record.id }) }}" method="post" {{ form_enctype(form) }} class="form-horizontal">
         <fieldset>
             {% for fieldName, field in generator.editDisplayFields %}
                 {% block form %}{% endblock %}
-                {% include 'CoregenThemeBootstrapBundle:Coregen:_form.html.twig' %}
+                {% include 'CoregenAdminGeneratorBundle:Coregen:_form.html.twig' %}
             {% endfor %}
             {{ form_row(form._token) }}
         </fieldset>

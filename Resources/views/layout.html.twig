@@ -3,12 +3,29 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('bundles/coregenadmingenerator/css/main.css') }}" type="text/css" media="screen" />
+        <script type="text/javascript" src="{{ asset('bundles/coregenadmingenerator/js/scripts.js') }}"></script>
         {% block stylesheets %}{% endblock %}
         <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
+        <div id="page">
+            <div id="menutop">
+                <div id="menuhorizontal">
+                    <ul>
+                        <li><a href="{{ path('homepage') }} ">{% trans %}Home{% endtrans %}</a></li>
+                    </ul>
+                </div>
+                <div class="clear">&nbsp;</div>
+            </div>
+
         {% block content %}{% endblock %}
         {% block javascripts %}{% endblock %}
+
+            <div id="footer">
+                <p>Copyright &copy; 2012 Rafael Goulart <a href="https://github.com/rafaelgou/CoregenAdminGeneratorBundle">Symfony2 Coregen Admin Generator</a><br/></p>
+            </div><!--footer-->
+        </div>
     </body>
 </html>
 

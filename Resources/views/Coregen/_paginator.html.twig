@@ -2,7 +2,7 @@
 
 {% if pager.haveToPaginate %}
 
-                <div class="span4 columns last pagination">
+                <div id="pagination">
                     <ul>
     {% if pager.isFirstPage %}
                         <li class="prev disabled" title="{% trans %}First Page{% endtrans %}"><a href="#">&lArr;</a></li>
@@ -19,7 +19,7 @@
                         <li class="next disabled" title="{% trans %}Last Page{% endtrans %}"><a href="#">&rArr;</a></li>
     {% else %}
                         <li class="next" title="{% trans %}Next Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.nextPage}) }}">&rarr;</a></li>
-                        <li class="next" title="{% trans %}Last Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.lastPage}) }}">&rArr;</a></li>
+                        <li class="next last" title="{% trans %}Last Page{% endtrans %}"><a href="{{ path(generator.route, {'page': pager.lastPage}) }}">&rArr;</a></li>
     {% endif %}
                     </ul>
                 </div>

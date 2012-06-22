@@ -1,34 +1,29 @@
-{% form_theme filter_form 'ThemeBootstrapBundle:Form:form_div_layout.html.twig' %}
 {% block filterForm %}
 
         <!-- Filter -->
-        <div class="span3 well">
+        <div id="filter">
 
-            <form action="{{ path(generator.route) }}" class="form-stacked" method="get">
+            <form action="{{ path(generator.route) }}" method="get">
                 <fieldset>
                     <legend>{{ generator.filter.title | trans({}, generator.transDomain) }}</legend>
 
                     {% for fieldName, field in generator.filter.fields %}
-                    <div class="control-group">
-                        {% if field.type == 'daterange' %}
-                            <label class="control-label">{{ field.label | trans({}, generator.transDomain) }}</label>
-                            <div class="controls">
-                                <div class="input-prepend" style="float:left;">
-                                    {% trans %}de{% endtrans %}<br/>
-                                    <span class="add-on"><i class="icon-calendar"></i></span>{{ form_widget(filter_form[fieldName ~ '_from']) }}
-                                </div>
-                                <div class="input-prepend" style="float:left;">
-                                    {% trans %}to{% endtrans %}<br/>
-                                    <span class="add-on"><i class="icon-calendar"></i></span>{{ form_widget(filter_form[fieldName ~ '_to']) }}
-                                </div>
-                            </div>
-                        {% else %}
-                            {{ form_label(filter_form[fieldName], field.label) }}
-                        <div class="controls">
+                    <p>
+                    {% if field.type == 'daterange' %}
+                        <label>{{ field.label | trans({}, generator.transDomain) }}</label>
+                        <div>
+                            {% trans %}de{% endtrans %}<br/>
+                            {{ form_widget(filter_form[fieldName ~ '_from']) }}
+                            {% trans %}to{% endtrans %}<br/>
+                            {{ form_widget(filter_form[fieldName ~ '_to']) }}
+                        </div>
+                    {% else %}
+                        {{ form_label(filter_form[fieldName], field.label | trans({}, generator.transDomain)) }}
+                        <div>
                             {{ form_widget(filter_form[fieldName]) }}
                         </div>
-                        {% endif %}
-                    </div>
+                    {% endif %}
+                    </p>
                     {% endfor %}
                 </fieldset>
                 <div class="actions">

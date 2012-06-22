@@ -1,14 +1,9 @@
-{% extends generator.layoutTheme |default('ThemeBootstrapBundle')  ~ '::layout.html.twig' %}
-
-{% macro renderStacked(record, stackedTemplate) %}
-    {{ stackedTemplate }}
-{% endmacro %}
+{% extends generator.layoutTheme |default('CoregenAdminGeneratorBundle')  ~ '::layout.html.twig' %}
 
 {% block title %}{{ generator.list.title | trans({}, generator.transDomain) }} {% endblock %}
 
 {% block content %}
 
-    <div class="page-header">
         <h1>
             {{ generator.list.title | trans({}, generator.transDomain) }}
             <small>
@@ -22,19 +17,14 @@
                 {% trans %}or{% endtrans %} <a href="{{ path(generator.route ~ '_new') }}">{% trans %}add new{% endtrans %}</a>
             </small>
         </h1>
-    </div>
 
 {% if pager.count == 0  %}
 
-    <div class="span12 columns">
-        <div id="no_records" class="alert-message warning">
-            <p>
-                {% trans %}No records found. You can filter again or{% endtrans %}
-            </p>
-            <p>
-                <a href="{{ path(generator.route ~ '_new') }}"><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
-            </p>
-        </div>
+    <div id="no_records" class="alert-message warning">
+        <p>
+            {% trans %}No records found. You can filter again or{% endtrans %}
+            <a href="{{ path(generator.route ~ '_new') }}"><button type="submit" class="btn primary">{% trans %}Add New{% endtrans %}</button></a>
+        </p>
     </div>
 
     {% if filter_form %}
@@ -42,14 +32,13 @@
     {% endif %}
 
 {% else %}
-    <div class="row">
 
 {% if generator.getListBatchActions() %}
         <form action="{{ path(generator.route ~ '_batch_actions') }}" id="batch_actions_fom" method="post" class="form-inline">
 {% endif %}
 
         <!-- List -->
-        <div class="span8 columns">
+        <div id="main_data">
 
 {% if generator.getListBatchActions() %}
             <div class="stacked_list_checkbox">
@@ -65,7 +54,7 @@
                     <input type="checkbox"
                            id="selected_objects_{{ generator.renderField('id', record) }}"
                            name="selected_objects[{{ generator.renderField('id', record) }}]" value="1"/>
-                    {% block stacked %}{{ generator.list.stackedTemplate }}{% endblock %}
+                    {% block stacked %}{% endblock %}
                     <ul class="stacked_list_menu details_fixed">
                         <li>
                             <a href="{{ path(generator.route ~ '_show', { 'id': generator.renderField('id', record)}) }}">
@@ -84,17 +73,17 @@
                             </a>
                         </li>
                     </ul>
-                    {{ _self.renderStacked(record, generator.list.stackedTemplate) }}
+                    {{ generator.listStackedTemplate(record) | raw }}
                 </div>
                 {% endfor %}
 
             </div>
 
 {% block batchActions %}{% endblock %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_batchActions.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_batchActions.html.twig' %}
 
 {% block paginator %}{% endblock %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_paginator.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_paginator.html.twig' %}
 
         </div>
 
@@ -104,10 +93,9 @@
 
 {% block filterForm %}{% endblock %}
 {% if filter_form %}
-{% include 'CoregenThemeBootstrapBundle:Coregen:_filterForm.html.twig' %}
+{% include 'CoregenAdminGeneratorBundle:Coregen:_filterForm.html.twig' %}
 {% endif %}
-
-    </div>
+        <div class="clear">&nbsp;</div>
 {% endif %}
 {% endblock %}
 

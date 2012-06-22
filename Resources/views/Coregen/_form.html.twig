@@ -1,15 +1,15 @@
-{% form_theme form 'ThemeBootstrapBundle:Form:form_div_layout.html.twig' %}
 {% block form %}
-<div class="control-group{% if (form_errors(form[fieldName])) %} error{% endif %}">
-    {{ form_label(form[fieldName], field.label) }}
-    <div class="controls">
-        {{ form_errors(form[fieldName]) }}
-        {{ form_widget(form[fieldName], { 'attr': {'class': field.class ~ ' ' ~ field.size} }) }}
-        {% if field.help %}
-        <span class="help-block">
-            {{ field.help | trans({}, generator.transDomain) }}
-        </span>
-        {% endif %}
-    </div>
-</div>
+    <p>
+        {{ form_label(form[fieldName], field.label | trans({}, generator.transDomain)) }}
+        <div>
+            {{ form_errors(form[fieldName]) }}
+            {{ form_widget(form[fieldName], { 'attr': {'class': field.class ~ ' ' ~ field.size} }) }}
+            {% if field.help %}
+            <span class="help-block">
+                {{ field.help | trans({}, generator.transDomain) }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="clear">&nbsp;</div>
+    </p>
 {% endblock %}

@@ -1,0 +1,47 @@
+## YAML Template.
+---
+no records: nenhum registro
+1 record: 1 registro
+records: registros
+or: ou
+add new: adicionar novo
+Add new: Adicionar novo
+Add New: Adicionar Novo
+No records found. You can filter again.: Nenhum registro encontrado. Você pode filtrar novamente.
+No records found. You can filter again or: Nenhum registro encontrado. Você pode filtrar novamente ou
+View: Ver
+Edit: Editar
+Delete: Excluir
+Actions: Ações
+you can: você pode
+go back to list: voltar à lista
+edit: editar
+Back to List: Voltar à lista
+Logout: Sair
+Save: Salvar
+Save and Add: Salvar e Adicionar
+Are you sure you want to delete: Tem certeza que deseja excluir
+First Page: Primeira Página
+Previous Page: Página Anterior
+First Page: Primeira Página
+Last Page: Última Página
+Yes: Sim
+No: Não
+YES: SIM
+NO: NÃO
+Unable to find Entity.: Impossível encontrar o Registro.
+The item was created successfully. Add a new one bellow.: O item foi criado com sucesso. Adicione um novo abaixo.
+The item was created successfully.: O item foi criado com sucesso.
+The item was updated successfully.: O item foi atualizado com sucesso.
+An error ocurred while saving the item. Check the informed data.: Um erro ocorreu ao salvar o item. Verifique os dados informados.
+The item was deleted successfully.: O item foi excluído com sucesso.
+An error ocurred while deleting the item.: Ocorreu um erro ao excluir o item.
+Filter: Filtrar
+Reset: Limpar
+from: de
+to: até
+go: executar
+Method "%s" not found in class "%s".: Método "%s" não encontrado na classe "%s".
+An error ocurred while executing the batch action.: Ocorreu um erro ao executar a ação em lote.
+No itens selected to execute the batch action.: Nenhum item selecionado para executar a ação em lote.
+%s item(s) has been excluded successfully.: %s item(ns) foram excluídos com sucesso.

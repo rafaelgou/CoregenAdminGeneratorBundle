@@ -4,10 +4,11 @@ Listing {{ entity }}: Listing {{ entity }}
 Editing {{ entity }}: Editing {{ entity }}
 New {{ entity }}:     New {{ entity }}
 Show {{ entity }}:    Show {{ entity }}
+Filter {{ entity }}:  Filter {{ entity }}
 
 # Field Labels
 {%- for field in fields %}
 
-{{ field }}: {{ field }}
+{{ field }}: {{ field | capitalize }}
 
 {%- endfor %}

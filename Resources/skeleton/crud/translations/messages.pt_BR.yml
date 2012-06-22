@@ -1,13 +1,14 @@
 # CRUD Actions
 {{ entity }}:         {{ entity }}
-Listing {{ entity }}: Listing {{ entity }}
-Editing {{ entity }}: Editing {{ entity }}
-New {{ entity }}:     New {{ entity }}
-Show {{ entity }}:    Show {{ entity }}
+Listing {{ entity }}: Listando {{ entity }}
+Editing {{ entity }}: Editando {{ entity }}
+New {{ entity }}:     Novo(a) {{ entity }}
+Show {{ entity }}:    Visualizar {{ entity }}
+Filter {{ entity }}:  Filtrar {{ entity }}
 
 # Field Labels
 {%- for field in fields %}
 
-{{ field }}: {{ field }}
+{{ field }}: {{ field | capitalize }}
 
 {%- endfor %}

@@ -449,7 +449,7 @@ abstract class GeneratorController extends Controller
                                     'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
                                     'format' => 'dd/MM/yyyy',//\IntlDateFormatter::MEDIUM,
                                     'widget'   => 'single_text',
-                                    'attr'     => array('class'=>'date span2'),
+                                    'attr'     => array('class'=>'date span1'),
                                     'input'    => 'string'
                                 ))
                         );
@@ -463,7 +463,7 @@ abstract class GeneratorController extends Controller
                                     'label'    => $this->generator->filter->fields[$fieldName]['label'] . " from",
                                     'format' => \IntlDateFormatter::MEDIUM,
                                     'widget' => 'single_text',
-                                    'attr'   => array('class'=>'date span2'),
+                                    'attr'   => array('class'=>'date span1'),
                                     'input'    => 'string'
                                 ))
                         );
@@ -479,6 +479,7 @@ abstract class GeneratorController extends Controller
                                 array(
                                     'required' => false,
                                     'label' => $this->generator->filter->fields[$fieldName]['label'],
+                                    //'attr'   => array('style'=>'width:95%'),
                                 ))
                         );
                         break;

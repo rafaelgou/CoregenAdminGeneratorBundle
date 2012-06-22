@@ -1,4 +1,4 @@
-{% extends generator.layoutTheme |default('ThemeBootstrapBundle')  ~ '::layout.html.twig' %}
+{% extends generator.layoutTheme |default('CoregenAdminGeneratorBundle')  ~ '::layout.html.twig' %}
 {% block title %}{{ generator.new.title | trans({}, generator.transDomain) }} {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
         <fieldset>
             {% for fieldName, field in generator.editDisplayFields %}
                 {% block form %}{% endblock %}
-                {% include 'CoregenThemeBootstrapBundle:Coregen:_form.html.twig' %}
+                {% include 'CoregenAdminGeneratorBundle:Coregen:_form.html.twig' %}
             {% endfor %}
             {{ form_row(form._token) }}
         </fieldset>
